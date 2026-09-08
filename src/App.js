@@ -9,37 +9,19 @@ import OrderDashboard from "./pages/OrderDashboard";
 import OrderDetails from "./pages/OrderDetails";
 
 function App() {
-
   return (
-
-    <BrowserRouter>
-
+    <BrowserRouter basename="/jkc-dashboard">
       <Routes>
+        <Route path="/orders" element={<OrderDashboard />} />
 
-        <Route
-          path="/orders"
-          element={<OrderDashboard />}
-        />
-
-        <Route
-          path="/orders/:id"
-          element={<OrderDetails />}
-        />
+        <Route path="/orders/:id" element={<OrderDetails />} />
 
         <Route
           path="*"
-          element={
-            <Navigate
-              to="/orders"
-              replace
-            />
-          }
+          element={<Navigate to="/orders" replace />}
         />
-
       </Routes>
-
     </BrowserRouter>
-
   );
 }
 
