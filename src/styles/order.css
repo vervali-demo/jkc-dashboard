@@ -100,19 +100,21 @@
 
   border: 1px solid #e3e8ef;
 
-  border-radius: 10px;
+  border-radius: 12px;
 
-  padding: 18px;
+  padding: 20px 18px;
 
   display: flex;
   align-items: center;
 
   gap: 14px;
+
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
 
 .summary-icon {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
 
   border-radius: 10px;
 
@@ -146,7 +148,7 @@
 
   color: #7b8798;
 
-  font-size: 12px;
+  font-size: 12.5px;
 
   margin-bottom: 5px;
 }
@@ -156,7 +158,7 @@
 
   color: #1e293b;
 
-  font-size: 21px;
+  font-size: 22px;
 
   font-weight: 700;
 }
@@ -171,11 +173,13 @@
 
   border: 1px solid #e3e8ef;
 
-  border-radius: 10px;
+  border-radius: 12px;
 
   padding: 14px;
 
   margin-bottom: 20px;
+
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .filter-row {
@@ -414,9 +418,11 @@
 
   border: 1px solid #e3e8ef;
 
-  border-radius: 10px;
+  border-radius: 12px;
 
   overflow: hidden;
+
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .table-top {
@@ -1094,13 +1100,15 @@
 }
 
 .mobile-order-card {
-  padding: 14px 16px;
+  padding: 16px 18px;
 
   background: #ffffff;
 
-  border: 1px solid #e8edf2;
+  border: 1px solid #e3e8ef;
 
-  border-radius: 10px;
+  border-radius: 12px;
+
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
 
 .mobile-order-card-top {
