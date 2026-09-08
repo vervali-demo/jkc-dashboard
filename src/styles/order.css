@@ -193,7 +193,7 @@
 
   flex: 0 0 auto;
 
-  width: 280px;
+  width: 440px;
 
   max-width: 100%;
 }
@@ -904,6 +904,14 @@
 }
 
 .details-modal-item {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 16px;
+
   margin-bottom: 14px;
 }
 
@@ -912,7 +920,7 @@
 }
 
 .details-modal-item strong {
-  display: block;
+  flex: 1 1 auto;
 
   color: #1e293b;
 
@@ -926,13 +934,15 @@
 }
 
 .details-modal-item span {
-  display: block;
+  flex: 0 0 auto;
 
-  margin-top: 4px;
+  text-align: right;
 
   color: #405066;
 
   font-size: 13px;
+
+  white-space: nowrap;
 }
 
 .details-modal-empty {

@@ -1030,7 +1030,7 @@ const OrderDashboard = () => {
                                         >
                                             <strong>{item.product}</strong>
                                             <span>
-                                                ={" "}
+                                                {" "}
                                                 {Number(
                                                     item.unitPrice || 0,
                                                 ).toLocaleString("en-IN")}
