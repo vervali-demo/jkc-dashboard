@@ -110,6 +110,69 @@ const OrderDetails = () => {
         <div className="details-breadcrumb">Orders / Order Details</div>
       </div>
 
+      {/* STATUS MILESTONE - TOP OF ALL */}
+      <div className="status-milestone-card information-card">
+        <div className="information-card-header">
+          <div className="info-icon">
+            <TimelineIcon />
+          </div>
+          <div>
+            <h3>Order Status</h3>
+            <span>Track progress of this order</span>
+          </div>
+        </div>
+
+        <div className="status-milestone">
+          {STATUS_STEPS.map((step, index) => {
+            const isCompleted = !isRejected && index <= activeIndex;
+            const isCurrent = !isRejected && index === activeIndex;
+
+            return (
+              <React.Fragment key={step}>
+                <div
+                  className={`milestone-step ${
+                    isCompleted ? "completed" : ""
+                  } ${isCurrent ? "current" : ""} ${
+                    isRejected && index === 0 ? "rejected" : ""
+                  }`}
+                >
+                  <div className="milestone-dot">
+                    {isCompleted ? "✓" : index + 1}
+                  </div>
+                  <span>{step}</span>
+                </div>
+
+                {index < STATUS_STEPS.length - 1 && (
+                  <div
+                    className={`milestone-line ${
+                      !isRejected && index < activeIndex ? "completed" : ""
+                    }`}
+                  />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+
+        {isRejected && (
+          <div className="milestone-note rejected">
+            This order was rejected.
+          </div>
+        )}
+
+        {String(currentStatus).toLowerCase() === "partial fulfilled" && (
+          <div className="milestone-note">
+            Current status: Partial Fulfilled
+          </div>
+        )}
+
+        {String(currentStatus).toLowerCase() === "distributor edit" && (
+          <div className="milestone-note">
+            Current status: Distributor Edit
+          </div>
+        )}
+      </div>
+
       <div className="details-heading">
         <div>
           <div className="details-id">Order #{order.id}</div>
@@ -120,281 +183,208 @@ const OrderDetails = () => {
         <StatusBadge status={currentStatus} />
       </div>
 
-      <div className="details-layout">
-        {/* LEFT COLUMN */}
-        <div className="details-main">
-          <div className="details-main-row">
-            <div className="information-card status-milestone-card">
-              <div className="information-card-header">
-                <div className="info-icon">
-                  <TimelineIcon />
-                </div>
-                <div>
-                  <h3>Order Status</h3>
-                  <span>Track progress of this order</span>
-                </div>
-              </div>
-
-              <div className="status-milestone">
-                {STATUS_STEPS.map((step, index) => {
-                  const isCompleted = !isRejected && index <= activeIndex;
-                  const isCurrent = !isRejected && index === activeIndex;
-
-                  return (
-                    <React.Fragment key={step}>
-                      <div
-                        className={`milestone-step ${
-                          isCompleted ? "completed" : ""
-                        } ${isCurrent ? "current" : ""} ${
-                          isRejected && index === 0 ? "rejected" : ""
-                        }`}
-                      >
-                        <div className="milestone-dot">
-                          {isCompleted ? "✓" : index + 1}
-                        </div>
-                        <span>{step}</span>
-                      </div>
-
-                      {index < STATUS_STEPS.length - 1 && (
-                        <div
-                          className={`milestone-line ${
-                            !isRejected && index < activeIndex
-                              ? "completed"
-                              : ""
-                          }`}
-                        />
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-              </div>
-
-              {isRejected && (
-                <div className="milestone-note rejected">
-                  This order was rejected.
-                </div>
-              )}
-
-              {String(currentStatus).toLowerCase() === "partial fulfilled" && (
-                <div className="milestone-note">
-                  Current status: Partial Fulfilled
-                </div>
-              )}
-
-              {String(currentStatus).toLowerCase() === "distributor edit" && (
-                <div className="milestone-note">
-                  Current status: Distributor Edit
-                </div>
-              )}
+      {/* 6 CARDS - 2 PER ROW */}
+      <div className="details-cards-grid">
+        <div className="information-card">
+          <div className="information-card-header">
+            <div className="info-icon">
+              <ReceiptLongIcon />
             </div>
-
-            <div className="information-card">
-              <div className="information-card-header">
-                <div className="info-icon">
-                  <WarehouseIcon />
-                </div>
-                <div>
-                  <h3>Distributor</h3>
-                  <span>Warehouse information</span>
-                </div>
-              </div>
-
-              <div className="information-fields compact-fields">
-                <div>
-                  <label>Warehouse / Distributor</label>
-                  <strong>{order.distributor}</strong>
-                </div>
-              </div>
+            <div>
+              <h3>Order Information</h3>
+              <span>Basic order details</span>
             </div>
           </div>
 
-          <div className="details-main-row">
-            <div className="information-card">
-              <div className="information-card-header">
-                <div className="info-icon">
-                  <PersonIcon />
-                </div>
-                <div>
-                  <h3>User Information</h3>
-                  <span>Order owner details</span>
-                </div>
-              </div>
-
-              <div className="information-fields compact-fields">
-                <div>
-                  <label>User</label>
-                  <strong>{order.user}</strong>
-                </div>
-                <div>
-                  <label>JCP Outlet</label>
-                  <strong>{order.outlet}</strong>
-                </div>
-                <div>
-                  <label>Ship To</label>
-                  <strong>{order.shipTo}</strong>
-                </div>
-              </div>
+          <div className="information-fields">
+            <div>
+              <label>Bizom Order ID</label>
+              <strong>{order.id}</strong>
             </div>
-
-            <div className="information-card">
-              <div className="information-card-header">
-                <div className="info-icon">
-                  <LocationOnIcon />
-                </div>
-                <div>
-                  <h3>Delivery</h3>
-                  <span>Delivery information</span>
-                </div>
-              </div>
-
-              <div className="information-fields compact-fields">
-                <div>
-                  <label>Ship To</label>
-                  <strong>{order.shipTo}</strong>
-                </div>
-                <div>
-                  <label>Comment</label>
-                  <strong>{order.comment || "-"}</strong>
-                </div>
-              </div>
+            <div>
+              <label>Order ERP ID</label>
+              <strong>{order.erpId}</strong>
             </div>
-          </div>
-
-          <div className="information-card">
-            <div className="information-card-header">
-              <div className="info-icon">
-                <AccountBalanceWalletIcon />
-              </div>
-              <div>
-                <h3>Order Summary</h3>
-                <span>Payment breakdown</span>
-              </div>
+            <div>
+              <label>Order Date</label>
+              <strong>{order.orderDate}</strong>
             </div>
-
-            <div className="order-summary-list">
-              <div className="order-summary-row">
-                <span>Subtotal</span>
-                <strong>{formatCurrency(summary.subtotal)}</strong>
-              </div>
-              <div className="order-summary-row">
-                <span>Discount</span>
-                <strong>{formatCurrency(summary.discount)}</strong>
-              </div>
-              <div className="order-summary-row">
-                <span>Tax (GST)</span>
-                <strong>{formatCurrency(summary.tax)}</strong>
-              </div>
-              <div className="order-summary-row total">
-                <span>Grand Total</span>
-                <strong>{formatCurrency(summary.total)}</strong>
-              </div>
+            <div>
+              <label>Order State</label>
+              <strong>{currentStatus}</strong>
             </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN */}
-        <div className="details-sidebar">
-          <div className="information-card">
-            <div className="information-card-header">
-              <div className="info-icon">
-                <ReceiptLongIcon />
-              </div>
-              <div>
-                <h3>Order Information</h3>
-                <span>Basic order details</span>
-              </div>
+        <div className="information-card">
+          <div className="information-card-header">
+            <div className="info-icon">
+              <WarehouseIcon />
             </div>
-
-            <div className="information-fields sidebar-fields">
-              <div>
-                <label>Bizom Order ID</label>
-                <strong>{order.id}</strong>
-              </div>
-              <div>
-                <label>Order ERP ID</label>
-                <strong>{order.erpId}</strong>
-              </div>
-              <div>
-                <label>Order Date</label>
-                <strong>{order.orderDate}</strong>
-              </div>
-              <div>
-                <label>Order State</label>
-                <strong>{currentStatus}</strong>
-              </div>
+            <div>
+              <h3>Distributor</h3>
+              <span>Warehouse information</span>
             </div>
           </div>
 
-          <div className="information-card sidebar-items-card">
-            <div className="information-card-header">
-              <div className="info-icon">
-                <Inventory2Icon />
-              </div>
-              <div>
-                <h3>Order Items</h3>
-                <span>
-                  {(order.items || []).length} product
-                  {(order.items || []).length === 1 ? "" : "s"}
-                </span>
-              </div>
+          <div className="information-fields compact-fields">
+            <div>
+              <label>Warehouse / Distributor</label>
+              <strong>{order.distributor}</strong>
             </div>
+          </div>
+        </div>
 
-            <div className="sidebar-items-table-wrapper desktop-items-table">
-              <table className="sidebar-items-table">
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Qty</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(order.items || []).map((item, index) => (
-                    <tr key={item.id || index}>
-                      <td>
-                        <strong>{item.product}</strong>
-                      </td>
-                      <td>{item.quantity}</td>
-                      <td>{formatCurrency(item.unitPrice)}</td>
-                      <td className="detail-item-amount">
-                        {formatCurrency(item.amount)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        <div className="information-card">
+          <div className="information-card-header">
+            <div className="info-icon">
+              <PersonIcon />
             </div>
+            <div>
+              <h3>User Information</h3>
+              <span>Order owner details</span>
+            </div>
+          </div>
 
-            <div className="mobile-items-list">
-              {(order.items || []).length === 0 ? (
-                <div className="mobile-item-card">
-                  <p className="mobile-item-empty">No products in this order</p>
-                </div>
-              ) : (
-                (order.items || []).map((item, index) => (
-                  <div key={item.id || index} className="mobile-item-card">
-                    <div className="mobile-kv-row">
-                      <span>Product</span>
+          <div className="information-fields">
+            <div>
+              <label>User</label>
+              <strong>{order.user}</strong>
+            </div>
+            <div>
+              <label>JCP Outlet</label>
+              <strong>{order.outlet}</strong>
+            </div>
+            <div>
+              <label>Ship To</label>
+              <strong>{order.shipTo}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="information-card">
+          <div className="information-card-header">
+            <div className="info-icon">
+              <LocationOnIcon />
+            </div>
+            <div>
+              <h3>Delivery</h3>
+              <span>Delivery information</span>
+            </div>
+          </div>
+
+          <div className="information-fields">
+            <div>
+              <label>Ship To</label>
+              <strong>{order.shipTo}</strong>
+            </div>
+            <div>
+              <label>Comment</label>
+              <strong>{order.comment || "-"}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="information-card">
+          <div className="information-card-header">
+            <div className="info-icon">
+              <Inventory2Icon />
+            </div>
+            <div>
+              <h3>Order Items</h3>
+              <span>
+                {(order.items || []).length} product
+                {(order.items || []).length === 1 ? "" : "s"}
+              </span>
+            </div>
+          </div>
+
+          <div className="sidebar-items-table-wrapper desktop-items-table">
+            <table className="sidebar-items-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(order.items || []).map((item, index) => (
+                  <tr key={item.id || index}>
+                    <td>
                       <strong>{item.product}</strong>
-                    </div>
-                    <div className="mobile-kv-row">
-                      <span>Quantity</span>
-                      <strong>{item.quantity}</strong>
-                    </div>
-                    <div className="mobile-kv-row">
-                      <span>Unit Price</span>
-                      <strong>{formatCurrency(item.unitPrice)}</strong>
-                    </div>
-                    <div className="mobile-kv-row">
-                      <span>Amount</span>
-                      <strong className="mobile-item-amount">
-                        {formatCurrency(item.amount)}
-                      </strong>
-                    </div>
+                    </td>
+                    <td>{item.quantity}</td>
+                    <td>{formatCurrency(item.unitPrice)}</td>
+                    <td className="detail-item-amount">
+                      {formatCurrency(item.amount)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mobile-items-list">
+            {(order.items || []).length === 0 ? (
+              <div className="mobile-item-card">
+                <p className="mobile-item-empty">No products in this order</p>
+              </div>
+            ) : (
+              (order.items || []).map((item, index) => (
+                <div key={item.id || index} className="mobile-item-card">
+                  <div className="mobile-kv-row">
+                    <span>Product</span>
+                    <strong>{item.product}</strong>
                   </div>
-                ))
-              )}
+                  <div className="mobile-kv-row">
+                    <span>Quantity</span>
+                    <strong>{item.quantity}</strong>
+                  </div>
+                  <div className="mobile-kv-row">
+                    <span>Unit Price</span>
+                    <strong>{formatCurrency(item.unitPrice)}</strong>
+                  </div>
+                  <div className="mobile-kv-row">
+                    <span>Amount</span>
+                    <strong className="mobile-item-amount">
+                      {formatCurrency(item.amount)}
+                    </strong>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="information-card">
+          <div className="information-card-header">
+            <div className="info-icon">
+              <AccountBalanceWalletIcon />
+            </div>
+            <div>
+              <h3>Order Summary</h3>
+              <span>Payment breakdown</span>
+            </div>
+          </div>
+
+          <div className="order-summary-list">
+            <div className="order-summary-row">
+              <span>Subtotal</span>
+              <strong>{formatCurrency(summary.subtotal)}</strong>
+            </div>
+            <div className="order-summary-row">
+              <span>Discount</span>
+              <strong>{formatCurrency(summary.discount)}</strong>
+            </div>
+            <div className="order-summary-row">
+              <span>Tax (GST)</span>
+              <strong>{formatCurrency(summary.tax)}</strong>
+            </div>
+            <div className="order-summary-row total">
+              <span>Grand Total</span>
+              <strong>{formatCurrency(summary.total)}</strong>
             </div>
           </div>
         </div>
