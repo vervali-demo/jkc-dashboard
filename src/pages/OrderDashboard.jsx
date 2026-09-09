@@ -17,11 +17,17 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CloseIcon from "@mui/icons-material/Close";
 
 import * as XLSX from "xlsx";
 
 import StatusBadge from "../components/StatusBadge";
-import { orders, ORDER_STATUSES } from "../data/order";
+import {
+    orders,
+    ORDER_STATUSES,
+    DIVISIONS,
+    APPROVAL_LEVELS,
+} from "../data/order";
 
 import "../styles/order.css";
 
@@ -173,14 +179,24 @@ const formatCurrency = (amount) => {
 // SORTABLE COLUMNS
 // --------------------------------------------------
 
+const SUMMARY_FILTER_LABELS = {
+    newToday: "New Order Today",
+    pending: "Pending Orders",
+    approvalPending: "Approval Pending",
+    total: "Total Orders",
+    value: "Total Order Value",
+};
+
 const SORTABLE_COLUMNS = [
     { key: "id", label: "Bizom Order ID" },
     { key: "erpId", label: "Order ERP ID" },
     { key: "outlet", label: "JCP Outlet" },
+    { key: "division", label: "Division" },
     { key: "amount", label: "Amount" },
     { key: "comment", label: "Comment" },
     { key: "orderDate", label: "Order Date" },
     { key: "status", label: "Order State" },
+    { key: "approvalLevel", label: "Approval Level" },
     { key: "user", label: "User" },
     { key: "distributor", label: "Warehouse / Distributor" },
     { key: "shipTo", label: "Ship To" },
@@ -197,6 +213,8 @@ const getSortValue = (order, key) => {
         case "id":
         case "erpId":
         case "outlet":
+        case "division":
+        case "approvalLevel":
         case "comment":
         case "user":
         case "distributor":
@@ -206,6 +224,16 @@ const getSortValue = (order, key) => {
             return "";
     }
 };
+
+const renderCheckIcon = (checked) =>
+    checked ? (
+        <CheckBoxIcon className="status-check-icon checked" fontSize="small" />
+    ) : (
+        <CheckBoxOutlineBlankIcon
+            className="status-check-icon"
+            fontSize="small"
+        />
+    );
 
 // --------------------------------------------------
 // COMPONENT
@@ -218,11 +246,26 @@ const OrderDashboard = () => {
 
     const [selectedStatuses, setSelectedStatuses] = useState([]);
 
+    const [selectedDivisions, setSelectedDivisions] = useState([]);
+
+    const [selectedDistributors, setSelectedDistributors] = useState([]);
+
+    const [selectedApprovalLevels, setSelectedApprovalLevels] = useState([]);
+
     const [summaryFilter, setSummaryFilter] = useState(null);
 
     const [isSyncing, setIsSyncing] = useState(false);
 
     const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+
+    const [divisionDropdownOpen, setDivisionDropdownOpen] = useState(false);
+
+    const [distributorDropdownOpen, setDistributorDropdownOpen] =
+        useState(false);
+
+    const [approvalDropdownOpen, setApprovalDropdownOpen] = useState(false);
+
+    const [distributorSearch, setDistributorSearch] = useState("");
 
     const [datePreset, setDatePreset] = useState("30");
 
@@ -239,9 +282,12 @@ const OrderDashboard = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
 
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
     const statusDropdownRef = React.useRef(null);
+    const divisionDropdownRef = React.useRef(null);
+    const distributorDropdownRef = React.useRef(null);
+    const approvalDropdownRef = React.useRef(null);
 
     // --------------------------------------------------
     // DEMO REFERENCE DATE
@@ -276,6 +322,27 @@ const OrderDashboard = () => {
             ) {
                 setStatusDropdownOpen(false);
             }
+
+            if (
+                divisionDropdownRef.current &&
+                !divisionDropdownRef.current.contains(event.target)
+            ) {
+                setDivisionDropdownOpen(false);
+            }
+
+            if (
+                distributorDropdownRef.current &&
+                !distributorDropdownRef.current.contains(event.target)
+            ) {
+                setDistributorDropdownOpen(false);
+            }
+
+            if (
+                approvalDropdownRef.current &&
+                !approvalDropdownRef.current.contains(event.target)
+            ) {
+                setApprovalDropdownOpen(false);
+            }
         };
 
         document.addEventListener("mousedown", handleOutsideClick);
@@ -284,6 +351,30 @@ const OrderDashboard = () => {
             document.removeEventListener("mousedown", handleOutsideClick);
         };
     }, []);
+
+    const distributorOptions = useMemo(() => {
+        const names = new Set();
+
+        orders.forEach((order) => {
+            if (order.distributor) {
+                names.add(order.distributor);
+            }
+        });
+
+        return Array.from(names).sort((a, b) => a.localeCompare(b));
+    }, []);
+
+    const filteredDistributorOptions = useMemo(() => {
+        const query = distributorSearch.trim().toLowerCase();
+
+        if (!query) {
+            return distributorOptions;
+        }
+
+        return distributorOptions.filter((name) =>
+            name.toLowerCase().includes(query),
+        );
+    }, [distributorOptions, distributorSearch]);
 
     // --------------------------------------------------
     // INITIAL DATE RANGE
@@ -368,6 +459,30 @@ const OrderDashboard = () => {
                 return false;
             }
 
+            const matchesDivision =
+                selectedDivisions.length === 0 ||
+                selectedDivisions.includes(order.division);
+
+            if (!matchesDivision) {
+                return false;
+            }
+
+            const matchesDistributor =
+                selectedDistributors.length === 0 ||
+                selectedDistributors.includes(order.distributor);
+
+            if (!matchesDistributor) {
+                return false;
+            }
+
+            const matchesApproval =
+                selectedApprovalLevels.length === 0 ||
+                selectedApprovalLevels.includes(order.approvalLevel);
+
+            if (!matchesApproval) {
+                return false;
+            }
+
             if (!searchValue) {
                 return true;
             }
@@ -380,10 +495,12 @@ const OrderDashboard = () => {
         ${order.id}
         ${order.erpId}
         ${order.outlet}
+        ${order.division}
         ${order.amount}
         ${order.comment}
         ${order.orderDate}
         ${status}
+        ${order.approvalLevel || ""}
         ${order.user}
         ${order.distributor}
         ${order.shipTo}
@@ -392,7 +509,16 @@ const OrderDashboard = () => {
 
             return searchableText.includes(searchValue);
         });
-    }, [dateFilteredOrders, search, selectedStatuses, summaryFilter, referenceDate]);
+    }, [
+        dateFilteredOrders,
+        search,
+        selectedStatuses,
+        selectedDivisions,
+        selectedDistributors,
+        selectedApprovalLevels,
+        summaryFilter,
+        referenceDate,
+    ]);
 
     // --------------------------------------------------
     // SORT
@@ -473,6 +599,9 @@ const OrderDashboard = () => {
     }, [
         search,
         selectedStatuses,
+        selectedDivisions,
+        selectedDistributors,
+        selectedApprovalLevels,
         summaryFilter,
         fromDate,
         toDate,
@@ -540,25 +669,51 @@ const OrderDashboard = () => {
         });
     };
 
-    const toggleStatusOption = (status) => {
-        setSummaryFilter(null);
+    const closeAllDropdowns = () => {
+        setStatusDropdownOpen(false);
+        setDivisionDropdownOpen(false);
+        setDistributorDropdownOpen(false);
+        setApprovalDropdownOpen(false);
+    };
 
-        setSelectedStatuses((current) => {
-            if (current.includes(status)) {
-                return current.filter((item) => item !== status);
+    const toggleListValue = (setter, value) => {
+        setter((current) => {
+            if (current.includes(value)) {
+                return current.filter((item) => item !== value);
             }
 
-            return [...current, status];
+            return [...current, value];
         });
+    };
+
+    const toggleStatusOption = (status) => {
+        setSummaryFilter(null);
+        toggleListValue(setSelectedStatuses, status);
+    };
+
+    const toggleDivisionOption = (division) => {
+        toggleListValue(setSelectedDivisions, division);
+    };
+
+    const toggleDistributorOption = (distributor) => {
+        toggleListValue(setSelectedDistributors, distributor);
+    };
+
+    const toggleApprovalOption = (level) => {
+        toggleListValue(setSelectedApprovalLevels, level);
     };
 
     const handleSummaryCardClick = (filterKey) => {
         setSelectedStatuses([]);
-        setStatusDropdownOpen(false);
+        closeAllDropdowns();
 
         setSummaryFilter((current) =>
             current === filterKey ? null : filterKey,
         );
+    };
+
+    const clearSummaryFilter = () => {
+        setSummaryFilter(null);
     };
 
     const handleSync = () => {
@@ -570,12 +725,37 @@ const OrderDashboard = () => {
         }, 800);
     };
 
-    const statusDropdownLabel =
-        selectedStatuses.length === 0
-            ? "All Status"
-            : selectedStatuses.length === 1
-              ? selectedStatuses[0]
-              : `${selectedStatuses.length} selected`;
+    const getMultiSelectLabel = (selected, emptyLabel) => {
+        if (selected.length === 0) {
+            return emptyLabel;
+        }
+
+        if (selected.length === 1) {
+            return selected[0];
+        }
+
+        return `${selected.length} selected`;
+    };
+
+    const statusDropdownLabel = getMultiSelectLabel(
+        selectedStatuses,
+        "All Status",
+    );
+
+    const divisionDropdownLabel = getMultiSelectLabel(
+        selectedDivisions,
+        "All Division",
+    );
+
+    const distributorDropdownLabel = getMultiSelectLabel(
+        selectedDistributors,
+        "All Distributors",
+    );
+
+    const approvalDropdownLabel = getMultiSelectLabel(
+        selectedApprovalLevels,
+        "Approval Level",
+    );
 
     // --------------------------------------------------
     // EXCEL EXPORT
@@ -592,10 +772,12 @@ const OrderDashboard = () => {
                     "Bizom Order ID": order.id,
                     "Order ERP ID": order.erpId,
                     "JCP Outlet": order.outlet,
+                    Division: order.division || "",
                     Amount: order.amount,
                     Comment: order.comment,
                     "Order Date": order.orderDate,
                     "Order State": getOrderStatus(order),
+                    "Approval Level": order.approvalLevel || "",
                     User: order.user,
                     "Warehouse / Distributor": order.distributor,
                     "Ship To": order.shipTo,
@@ -610,10 +792,12 @@ const OrderDashboard = () => {
                         "Bizom Order ID": order.id,
                         "Order ERP ID": order.erpId,
                         "JCP Outlet": order.outlet,
+                        Division: order.division || "",
                         Amount: order.amount,
                         Comment: order.comment,
                         "Order Date": order.orderDate,
                         "Order State": getOrderStatus(order),
+                        "Approval Level": order.approvalLevel || "",
                         User: order.user,
                         "Warehouse / Distributor": order.distributor,
                         "Ship To": order.shipTo,
@@ -643,7 +827,11 @@ const OrderDashboard = () => {
         setSearch("");
 
         setSelectedStatuses([]);
-        setStatusDropdownOpen(false);
+        setSelectedDivisions([]);
+        setSelectedDistributors([]);
+        setSelectedApprovalLevels([]);
+        setDistributorSearch("");
+        closeAllDropdowns();
         setSummaryFilter(null);
 
         setDatePreset("30");
@@ -815,9 +1003,12 @@ const OrderDashboard = () => {
                             <button
                                 type="button"
                                 className="status-multiselect-trigger"
-                                onClick={() =>
-                                    setStatusDropdownOpen((open) => !open)
-                                }
+                                onClick={() => {
+                                    setDivisionDropdownOpen(false);
+                                    setDistributorDropdownOpen(false);
+                                    setApprovalDropdownOpen(false);
+                                    setStatusDropdownOpen((open) => !open);
+                                }}
                             >
                                 <span>{statusDropdownLabel}</span>
                                 <KeyboardArrowDownIcon fontSize="small" />
@@ -843,18 +1034,192 @@ const OrderDashboard = () => {
                                                         )
                                                     }
                                                 />
-                                                {checked ? (
-                                                    <CheckBoxIcon
-                                                        className="status-check-icon checked"
-                                                        fontSize="small"
-                                                    />
-                                                ) : (
-                                                    <CheckBoxOutlineBlankIcon
-                                                        className="status-check-icon"
-                                                        fontSize="small"
-                                                    />
-                                                )}
+                                                {renderCheckIcon(checked)}
                                                 <span>{status}</span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* DIVISION */}
+
+                        <div
+                            className="status-multiselect"
+                            ref={divisionDropdownRef}
+                        >
+                            <button
+                                type="button"
+                                className="status-multiselect-trigger"
+                                onClick={() => {
+                                    setStatusDropdownOpen(false);
+                                    setDistributorDropdownOpen(false);
+                                    setApprovalDropdownOpen(false);
+                                    setDivisionDropdownOpen((open) => !open);
+                                }}
+                            >
+                                <span>{divisionDropdownLabel}</span>
+                                <KeyboardArrowDownIcon fontSize="small" />
+                            </button>
+
+                            {divisionDropdownOpen && (
+                                <div className="status-multiselect-menu">
+                                    {DIVISIONS.map((division) => {
+                                        const checked =
+                                            selectedDivisions.includes(
+                                                division,
+                                            );
+
+                                        return (
+                                            <label
+                                                key={division}
+                                                className="status-multiselect-option"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={checked}
+                                                    onChange={() =>
+                                                        toggleDivisionOption(
+                                                            division,
+                                                        )
+                                                    }
+                                                />
+                                                {renderCheckIcon(checked)}
+                                                <span>{division}</span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* DISTRIBUTOR */}
+
+                        <div
+                            className="status-multiselect distributor-multiselect"
+                            ref={distributorDropdownRef}
+                        >
+                            <button
+                                type="button"
+                                className="status-multiselect-trigger"
+                                onClick={() => {
+                                    setStatusDropdownOpen(false);
+                                    setDivisionDropdownOpen(false);
+                                    setApprovalDropdownOpen(false);
+                                    setDistributorDropdownOpen((open) => !open);
+                                }}
+                            >
+                                <span>{distributorDropdownLabel}</span>
+                                <KeyboardArrowDownIcon fontSize="small" />
+                            </button>
+
+                            {distributorDropdownOpen && (
+                                <div className="status-multiselect-menu distributor-menu">
+                                    <div className="distributor-search">
+                                        <SearchIcon fontSize="small" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search distributor..."
+                                            value={distributorSearch}
+                                            onChange={(event) =>
+                                                setDistributorSearch(
+                                                    event.target.value,
+                                                )
+                                            }
+                                        />
+                                    </div>
+
+                                    <div className="distributor-options">
+                                        {filteredDistributorOptions.length ===
+                                        0 ? (
+                                            <div className="distributor-empty">
+                                                No distributors found
+                                            </div>
+                                        ) : (
+                                            filteredDistributorOptions.map(
+                                                (distributor) => {
+                                                    const checked =
+                                                        selectedDistributors.includes(
+                                                            distributor,
+                                                        );
+
+                                                    return (
+                                                        <label
+                                                            key={distributor}
+                                                            className="status-multiselect-option"
+                                                        >
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={
+                                                                    checked
+                                                                }
+                                                                onChange={() =>
+                                                                    toggleDistributorOption(
+                                                                        distributor,
+                                                                    )
+                                                                }
+                                                            />
+                                                            {renderCheckIcon(
+                                                                checked,
+                                                            )}
+                                                            <span>
+                                                                {distributor}
+                                                            </span>
+                                                        </label>
+                                                    );
+                                                },
+                                            )
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* APPROVAL PENDING LEVEL */}
+
+                        <div
+                            className="status-multiselect"
+                            ref={approvalDropdownRef}
+                        >
+                            <button
+                                type="button"
+                                className="status-multiselect-trigger"
+                                onClick={() => {
+                                    setStatusDropdownOpen(false);
+                                    setDivisionDropdownOpen(false);
+                                    setDistributorDropdownOpen(false);
+                                    setApprovalDropdownOpen((open) => !open);
+                                }}
+                            >
+                                <span>{approvalDropdownLabel}</span>
+                                <KeyboardArrowDownIcon fontSize="small" />
+                            </button>
+
+                            {approvalDropdownOpen && (
+                                <div className="status-multiselect-menu">
+                                    {APPROVAL_LEVELS.map((level) => {
+                                        const checked =
+                                            selectedApprovalLevels.includes(
+                                                level,
+                                            );
+
+                                        return (
+                                            <label
+                                                key={level}
+                                                className="status-multiselect-option"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={checked}
+                                                    onChange={() =>
+                                                        toggleApprovalOption(
+                                                            level,
+                                                        )
+                                                    }
+                                                />
+                                                {renderCheckIcon(checked)}
+                                                <span>{level}</span>
                                             </label>
                                         );
                                     })}
@@ -939,8 +1304,26 @@ const OrderDashboard = () => {
 
             <div className="table-card">
                 <div className="table-top">
-                    <div>
-                        <h2>Order List</h2>
+                    <div className="table-top-left">
+                        <div className="table-top-title-row">
+                            <h2>Order List</h2>
+
+                            {summaryFilter && (
+                                <span
+                                    className={`active-filter-chip chip-${summaryFilter}`}
+                                >
+                                    {SUMMARY_FILTER_LABELS[summaryFilter]}
+                                    <button
+                                        type="button"
+                                        className="active-filter-chip-clear"
+                                        aria-label="Clear filter"
+                                        onClick={clearSummaryFilter}
+                                    >
+                                        <CloseIcon fontSize="inherit" />
+                                    </button>
+                                </span>
+                            )}
+                        </div>
 
                         <span>
                             {sortedOrders.length} order
@@ -985,15 +1368,13 @@ const OrderDashboard = () => {
                                 ))}
 
                                 <th>Details (Cases)</th>
-
-                                <th>Actions</th>
                             </tr>
                         </thead>
 
                         <tbody>
                             {paginatedOrders.length === 0 ? (
                                 <tr>
-                                    <td colSpan={12} className="no-records">
+                                    <td colSpan={13} className="no-records">
                                         No records found
                                     </td>
                                 </tr>
@@ -1016,6 +1397,8 @@ const OrderDashboard = () => {
                                         <td>{order.erpId}</td>
 
                                         <td>{order.outlet}</td>
+
+                                        <td>{order.division || "-"}</td>
 
                                         <td className="amount-cell">
                                             {formatCurrency(order.amount)}
@@ -1048,6 +1431,8 @@ const OrderDashboard = () => {
                                                 status={getOrderStatus(order)}
                                             />
                                         </td>
+
+                                        <td>{order.approvalLevel || "-"}</td>
 
                                         <td>{order.user}</td>
 
@@ -1107,8 +1492,6 @@ const OrderDashboard = () => {
                                                 </div>
                                             )}
                                         </td>
-
-                                        <td className="actions-cell" />
                                     </tr>
                                 ))
                             )}
@@ -1143,6 +1526,18 @@ const OrderDashboard = () => {
                                 <div className="mobile-order-row">
                                     <span>Outlet</span>
                                     <strong>{order.outlet}</strong>
+                                </div>
+
+                                <div className="mobile-order-row">
+                                    <span>Division</span>
+                                    <strong>{order.division || "-"}</strong>
+                                </div>
+
+                                <div className="mobile-order-row">
+                                    <span>Approval Level</span>
+                                    <strong>
+                                        {order.approvalLevel || "-"}
+                                    </strong>
                                 </div>
 
                                 <div className="mobile-order-row">
@@ -1197,6 +1592,8 @@ const OrderDashboard = () => {
                                 }
                                 className="rows-select"
                             >
+                                <option value={5}>5 / page</option>
+
                                 <option value={10}>10 / page</option>
 
                                 <option value={25}>25 / page</option>

@@ -333,7 +333,7 @@
 .status-multiselect {
   position: relative;
 
-  min-width: 160px;
+  min-width: 150px;
 }
 
 .status-multiselect-trigger {
@@ -624,6 +624,20 @@
   border-bottom: 1px solid #e5eaf0;
 }
 
+.table-top-left {
+  min-width: 0;
+}
+
+.table-top-title-row {
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
 .table-top h2 {
   margin: 0;
 
@@ -632,7 +646,7 @@
   color: #1e293b;
 }
 
-.table-top span {
+.table-top-left > span {
   display: block;
 
   margin-top: 4px;
@@ -640,6 +654,172 @@
   color: #8a94a6;
 
   font-size: 12px;
+}
+
+.active-filter-chip {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  max-width: 100%;
+
+  padding: 4px 8px 4px 10px;
+
+  border-radius: 999px;
+
+  background: #fff7e6;
+
+  color: #b45309;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  line-height: 1.2;
+}
+
+.active-filter-chip-clear {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 18px;
+
+  height: 18px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: rgba(180, 83, 9, 0.12);
+
+  color: inherit;
+
+  cursor: pointer;
+
+  padding: 0;
+
+  font-size: 14px;
+}
+
+.active-filter-chip-clear:hover {
+  background: rgba(15, 23, 42, 0.1);
+}
+
+/* New Order Today — light blue */
+.active-filter-chip.chip-newToday {
+  background: #e8f1ff;
+
+  color: #2563eb;
+}
+
+.active-filter-chip.chip-newToday .active-filter-chip-clear {
+  background: rgba(37, 99, 235, 0.12);
+}
+
+/* Pending Orders — yellow */
+.active-filter-chip.chip-pending {
+  background: #fef9c3;
+
+  color: #a16207;
+}
+
+.active-filter-chip.chip-pending .active-filter-chip-clear {
+  background: rgba(161, 98, 7, 0.12);
+}
+
+/* Approval Pending — keep amber (default) */
+.active-filter-chip.chip-approvalPending {
+  background: #fff7e6;
+
+  color: #b45309;
+}
+
+.active-filter-chip.chip-approvalPending .active-filter-chip-clear {
+  background: rgba(180, 83, 9, 0.12);
+}
+
+/* Total / Value — soft slate */
+.active-filter-chip.chip-total,
+.active-filter-chip.chip-value {
+  background: #f1f5f9;
+
+  color: #475569;
+}
+
+.active-filter-chip.chip-total .active-filter-chip-clear,
+.active-filter-chip.chip-value .active-filter-chip-clear {
+  background: rgba(71, 85, 105, 0.12);
+}
+
+.distributor-multiselect {
+  min-width: 180px;
+}
+
+.distributor-menu {
+  min-width: 280px;
+
+  max-height: none;
+
+  overflow: visible;
+
+  padding: 8px;
+}
+
+.distributor-search {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  margin-bottom: 6px;
+
+  padding: 0 10px;
+
+  height: 36px;
+
+  border: 1px solid #d9e0e8;
+
+  border-radius: 7px;
+
+  background: #f8fafc;
+
+  color: #94a3b8;
+}
+
+.distributor-search input {
+  width: 100%;
+
+  border: none;
+
+  outline: none;
+
+  background: transparent;
+
+  font-size: 13px;
+
+  color: #334155;
+}
+
+.distributor-options {
+  max-height: 240px;
+
+  overflow-y: auto;
+
+  overflow-x: hidden;
+}
+
+.distributor-empty {
+  padding: 12px 10px;
+
+  color: #94a3b8;
+
+  font-size: 13px;
 }
 
 
@@ -656,7 +836,7 @@
 .orders-table {
   width: 100%;
 
-  min-width: 1350px;
+  min-width: 1880px;
 
   border-collapse: separate;
 
@@ -779,68 +959,78 @@
 
 /* =====================================================
    COLUMN WIDTHS
+   1 ID | 2 ERP | 3 Outlet | 4 Division | 5 Amount | 6 Comment
+   7 Date | 8 State | 9 Approval | 10 User | 11 Distributor
+   12 Ship To | 13 Details
 ===================================================== */
 
 .orders-table th:nth-child(1),
 .orders-table td:nth-child(1) {
-  width: 130px;
+  width: 120px;
 }
 
 .orders-table th:nth-child(2),
 .orders-table td:nth-child(2) {
-  width: 115px;
+  width: 120px;
 }
 
 .orders-table th:nth-child(3),
 .orders-table td:nth-child(3) {
-  width: 125px;
+  width: 140px;
 }
 
 .orders-table th:nth-child(4),
 .orders-table td:nth-child(4) {
-  width: 115px;
+  width: 110px;
 }
 
 .orders-table th:nth-child(5),
 .orders-table td:nth-child(5) {
-  width: 130px;
+  width: 120px;
 }
 
 .orders-table th:nth-child(6),
 .orders-table td:nth-child(6) {
-  width: 105px;
+  width: 130px;
 }
 
 .orders-table th:nth-child(7),
 .orders-table td:nth-child(7) {
-  width: 115px;
+  width: 120px;
 }
 
 .orders-table th:nth-child(8),
 .orders-table td:nth-child(8) {
-  width: 145px;
+  width: 150px;
 }
 
 .orders-table th:nth-child(9),
 .orders-table td:nth-child(9) {
-  width: 165px;
+  width: 130px;
 }
 
 .orders-table th:nth-child(10),
 .orders-table td:nth-child(10) {
-  width: 145px;
+  width: 140px;
 }
 
 .orders-table th:nth-child(11),
 .orders-table td:nth-child(11) {
-  width: 130px;
-
-  text-align: center;
+  width: 160px;
 }
 
 .orders-table th:nth-child(12),
 .orders-table td:nth-child(12) {
-  width: 90px;
+  width: 140px;
+}
+
+.orders-table th:nth-child(13),
+.orders-table td:nth-child(13) {
+  width: 130px;
+
+  text-align: center;
+
+  padding-right: 16px;
 }
 
 
