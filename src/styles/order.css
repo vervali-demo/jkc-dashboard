@@ -836,7 +836,7 @@
 .orders-table {
   width: 100%;
 
-  min-width: 1880px;
+  min-width: 1720px;
 
   border-collapse: separate;
 
@@ -960,8 +960,7 @@
 /* =====================================================
    COLUMN WIDTHS
    1 ID | 2 ERP | 3 Outlet | 4 Division | 5 Amount | 6 Comment
-   7 Date | 8 State | 9 Approval | 10 User | 11 Distributor
-   12 Ship To | 13 Details
+   7 Date | 8 State | 9 User | 10 Distributor | 11 Ship To | 12 Details
 ===================================================== */
 
 .orders-table th:nth-child(1),
@@ -1006,26 +1005,21 @@
 
 .orders-table th:nth-child(9),
 .orders-table td:nth-child(9) {
-  width: 130px;
+  width: 140px;
 }
 
 .orders-table th:nth-child(10),
 .orders-table td:nth-child(10) {
-  width: 140px;
+  width: 160px;
 }
 
 .orders-table th:nth-child(11),
 .orders-table td:nth-child(11) {
-  width: 160px;
+  width: 140px;
 }
 
 .orders-table th:nth-child(12),
 .orders-table td:nth-child(12) {
-  width: 140px;
-}
-
-.orders-table th:nth-child(13),
-.orders-table td:nth-child(13) {
   width: 130px;
 
   text-align: center;

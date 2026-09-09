@@ -196,7 +196,6 @@ const SORTABLE_COLUMNS = [
     { key: "comment", label: "Comment" },
     { key: "orderDate", label: "Order Date" },
     { key: "status", label: "Order State" },
-    { key: "approvalLevel", label: "Approval Level" },
     { key: "user", label: "User" },
     { key: "distributor", label: "Warehouse / Distributor" },
     { key: "shipTo", label: "Ship To" },
@@ -214,7 +213,6 @@ const getSortValue = (order, key) => {
         case "erpId":
         case "outlet":
         case "division":
-        case "approvalLevel":
         case "comment":
         case "user":
         case "distributor":
@@ -1374,7 +1372,7 @@ const OrderDashboard = () => {
                         <tbody>
                             {paginatedOrders.length === 0 ? (
                                 <tr>
-                                    <td colSpan={13} className="no-records">
+                                    <td colSpan={12} className="no-records">
                                         No records found
                                     </td>
                                 </tr>
@@ -1431,8 +1429,6 @@ const OrderDashboard = () => {
                                                 status={getOrderStatus(order)}
                                             />
                                         </td>
-
-                                        <td>{order.approvalLevel || "-"}</td>
 
                                         <td>{order.user}</td>
 
@@ -1531,13 +1527,6 @@ const OrderDashboard = () => {
                                 <div className="mobile-order-row">
                                     <span>Division</span>
                                     <strong>{order.division || "-"}</strong>
-                                </div>
-
-                                <div className="mobile-order-row">
-                                    <span>Approval Level</span>
-                                    <strong>
-                                        {order.approvalLevel || "-"}
-                                    </strong>
                                 </div>
 
                                 <div className="mobile-order-row">
