@@ -44,6 +44,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 24px;
   background: #ffffff;
   border: 1px solid #e3e8ef;
   border-radius: 12px;
@@ -52,6 +53,20 @@
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   box-sizing: border-box;
   width: 100%;
+}
+
+.details-heading-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.details-heading-milestone {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 0;
 }
 
 .details-id {
@@ -77,10 +92,14 @@
    DESKTOP LAYOUT
 ========================================= */
 
+.mobile-only-milestone {
+  display: none;
+}
+
 .status-milestone-card {
   width: 100%;
-  max-width: 480px;
-  margin: 0 auto 20px;
+  max-width: 100%;
+  margin: 0 0 16px;
   box-sizing: border-box;
 }
 
@@ -189,6 +208,15 @@
   gap: 0;
   max-width: 100%;
   margin: 0 auto;
+}
+
+.details-heading-milestone .milestone-note {
+  margin-top: 10px;
+  text-align: right;
+}
+
+.details-heading-milestone .status-milestone {
+  justify-content: flex-end;
 }
 
 .milestone-step {
@@ -516,13 +544,6 @@
     grid-template-columns: 1fr;
     width: 100%;
   }
-
-  .status-milestone-card {
-    max-width: 100%;
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-  }
 }
 
 @media (max-width: 800px) {
@@ -543,14 +564,28 @@
     box-sizing: border-box;
   }
 
-  .status-milestone-card {
-    margin-bottom: 16px;
-  }
-
   .details-heading {
     align-items: flex-start;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
+  }
+
+  .details-heading-info {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  /* Hide inline milestone in header on mobile */
+  .details-heading-milestone {
+    display: none;
+  }
+
+  /* Show milestone as normal full-width card */
+  .mobile-only-milestone {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 0 16px;
   }
 
   .details-cards-grid {

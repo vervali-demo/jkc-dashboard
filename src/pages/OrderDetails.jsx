@@ -10,7 +10,6 @@ import TimelineIcon from "@mui/icons-material/Timeline";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 
-import StatusBadge from "../components/StatusBadge";
 import { orders } from "../data/order";
 
 import "../styles/order-details.css";
@@ -96,6 +95,54 @@ const OrderDetails = () => {
   const activeIndex = getActiveMilestoneIndex(currentStatus);
   const isRejected = activeIndex === -1;
 
+  const renderMilestoneNotes = () => (
+    <>
+      {isRejected && (
+        <div className="milestone-note rejected">This order was rejected.</div>
+      )}
+
+      {String(currentStatus).toLowerCase() === "partial fulfilled" && (
+        <div className="milestone-note">Current status: Partial Fulfilled</div>
+      )}
+
+      {String(currentStatus).toLowerCase() === "distributor edit" && (
+        <div className="milestone-note">Current status: Distributor Edit</div>
+      )}
+    </>
+  );
+
+  const renderMilestoneSteps = () => (
+    <div className="status-milestone">
+      {STATUS_STEPS.map((step, index) => {
+        const isCompleted = !isRejected && index <= activeIndex;
+        const isCurrent = !isRejected && index === activeIndex;
+
+        return (
+          <React.Fragment key={step}>
+            <div
+              className={`milestone-step ${isCompleted ? "completed" : ""} ${
+                isCurrent ? "current" : ""
+              } ${isRejected && index === 0 ? "rejected" : ""}`}
+            >
+              <div className="milestone-dot">
+                {isCompleted ? "✓" : index + 1}
+              </div>
+              <span>{step}</span>
+            </div>
+
+            {index < STATUS_STEPS.length - 1 && (
+              <div
+                className={`milestone-line ${
+                  !isRejected && index < activeIndex ? "completed" : ""
+                }`}
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className="order-details-page">
       <div className="details-top">
@@ -110,8 +157,8 @@ const OrderDetails = () => {
         <div className="details-breadcrumb">Orders / Order Details</div>
       </div>
 
-      {/* STATUS MILESTONE - TOP OF ALL */}
-      <div className="status-milestone-card information-card">
+      {/* Mobile: milestone on top */}
+      <div className="status-milestone-card information-card mobile-only-milestone">
         <div className="information-card-header">
           <div className="info-icon">
             <TimelineIcon />
@@ -122,65 +169,21 @@ const OrderDetails = () => {
           </div>
         </div>
 
-        <div className="status-milestone">
-          {STATUS_STEPS.map((step, index) => {
-            const isCompleted = !isRejected && index <= activeIndex;
-            const isCurrent = !isRejected && index === activeIndex;
-
-            return (
-              <React.Fragment key={step}>
-                <div
-                  className={`milestone-step ${
-                    isCompleted ? "completed" : ""
-                  } ${isCurrent ? "current" : ""} ${
-                    isRejected && index === 0 ? "rejected" : ""
-                  }`}
-                >
-                  <div className="milestone-dot">
-                    {isCompleted ? "✓" : index + 1}
-                  </div>
-                  <span>{step}</span>
-                </div>
-
-                {index < STATUS_STEPS.length - 1 && (
-                  <div
-                    className={`milestone-line ${
-                      !isRejected && index < activeIndex ? "completed" : ""
-                    }`}
-                  />
-                )}
-              </React.Fragment>
-            );
-          })}
-        </div>
-
-        {isRejected && (
-          <div className="milestone-note rejected">
-            This order was rejected.
-          </div>
-        )}
-
-        {String(currentStatus).toLowerCase() === "partial fulfilled" && (
-          <div className="milestone-note">
-            Current status: Partial Fulfilled
-          </div>
-        )}
-
-        {String(currentStatus).toLowerCase() === "distributor edit" && (
-          <div className="milestone-note">
-            Current status: Distributor Edit
-          </div>
-        )}
+        {renderMilestoneSteps()}
+        {renderMilestoneNotes()}
       </div>
 
       <div className="details-heading">
-        <div>
+        <div className="details-heading-info">
           <div className="details-id">Order #{order.id}</div>
           <h1>{order.outlet}</h1>
           <p>Created on {order.orderDate}</p>
         </div>
 
-        <StatusBadge status={currentStatus} />
+        <div className="details-heading-milestone">
+          {renderMilestoneSteps()}
+          {renderMilestoneNotes()}
+        </div>
       </div>
 
       {/* 6 CARDS - 2 PER ROW */}
