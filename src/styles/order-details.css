@@ -1,13 +1,9 @@
 .order-details-page {
   min-height: 100vh;
-
   background: #f6f8fb;
-
   padding: 28px;
-
   color: #253247;
 }
-
 
 /* =========================================
    TOP
@@ -19,23 +15,14 @@
 
 .back-order-btn {
   display: inline-flex;
-
   align-items: center;
-
   gap: 7px;
-
   border: none;
-
   background: transparent;
-
   color: #006dcc;
-
   font-size: 13px;
-
   font-weight: 600;
-
   cursor: pointer;
-
   padding: 0;
 }
 
@@ -45,12 +32,9 @@
 
 .details-breadcrumb {
   margin-top: 12px;
-
   color: #8a94a6;
-
   font-size: 12px;
 }
-
 
 /* =========================================
    HEADER
@@ -58,103 +42,96 @@
 
 .details-heading {
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   background: #ffffff;
-
   border: 1px solid #e3e8ef;
-
-  border-radius: 10px;
-
+  border-radius: 12px;
   padding: 22px;
-
   margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .details-id {
   color: #006dcc;
-
   font-size: 13px;
-
   font-weight: 600;
-
   margin-bottom: 5px;
 }
 
 .details-heading h1 {
   margin: 0;
-
   color: #1e293b;
-
   font-size: 22px;
 }
 
 .details-heading p {
   margin: 6px 0 0;
-
   color: #8a94a6;
-
   font-size: 12px;
 }
 
-
 /* =========================================
-   INFORMATION
+   DESKTOP LAYOUT
 ========================================= */
 
-.information-grid {
+.details-layout {
   display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.95fr);
   gap: 16px;
-
-  margin-bottom: 20px;
+  align-items: start;
 }
+
+.details-main,
+.details-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.details-main-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.compact-fields {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* =========================================
+   CARDS
+========================================= */
 
 .information-card {
   background: #ffffff;
-
   border: 1px solid #e3e8ef;
-
-  border-radius: 10px;
-
+  border-radius: 12px;
   padding: 20px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .information-card-header {
   display: flex;
-
   align-items: center;
-
   gap: 11px;
-
   padding-bottom: 15px;
-
   margin-bottom: 15px;
-
   border-bottom: 1px solid #edf0f4;
 }
 
 .info-icon {
   width: 38px;
   height: 38px;
-
   border-radius: 9px;
-
   background: #eef5ff;
-
   color: #2563eb;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .info-icon svg {
@@ -163,197 +140,201 @@
 
 .information-card-header h3 {
   margin: 0;
-
   color: #334155;
-
   font-size: 14px;
 }
 
 .information-card-header span {
   display: block;
-
   margin-top: 3px;
-
   color: #94a3b8;
-
   font-size: 11px;
 }
 
 .information-fields {
   display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
 
 .information-fields label {
   display: block;
-
   margin-bottom: 5px;
-
   color: #94a3b8;
-
   font-size: 11px;
 }
 
 .information-fields strong {
   display: block;
-
   color: #475569;
-
   font-size: 13px;
-
   word-break: break-word;
 }
 
+.sidebar-fields {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
 
 /* =========================================
-   ITEMS
+   STATUS MILESTONE
 ========================================= */
 
-.items-detail-card {
-  background: #ffffff;
-
-  border: 1px solid #e3e8ef;
-
-  border-radius: 10px;
-
-  overflow: hidden;
-
-  margin-bottom: 20px;
+.status-milestone-card {
+  margin-bottom: 0;
 }
 
-.items-detail-header {
+.status-milestone {
   display: flex;
-
-  justify-content: space-between;
-
   align-items: center;
-
-  padding: 20px;
-
-  border-bottom: 1px solid #e5eaf0;
+  justify-content: flex-start;
+  gap: 0;
+  max-width: 100%;
 }
 
-.items-detail-header h2 {
-  margin: 0;
-
-  color: #1e293b;
-
-  font-size: 16px;
-}
-
-.items-detail-header p {
-  margin: 4px 0 0;
-
+.milestone-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 72px;
+  flex: 0 0 auto;
   color: #94a3b8;
-
   font-size: 12px;
-}
-
-.item-count-badge {
-  padding: 6px 10px;
-
-  background: #f1f5f9;
-
-  color: #64748b;
-
-  border-radius: 20px;
-
-  font-size: 11px;
-
   font-weight: 600;
 }
 
+.milestone-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid #d5dce5;
+  background: #ffffff;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.milestone-line {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 3px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  margin-bottom: 22px;
+}
+
+.milestone-step.completed,
+.milestone-step.current {
+  color: #15803d;
+}
+
+.milestone-step.completed .milestone-dot,
+.milestone-step.current .milestone-dot {
+  border-color: #22c55e;
+  background: #22c55e;
+  color: #ffffff;
+}
+
+.milestone-line.completed {
+  background: #22c55e;
+}
+
+.milestone-step.rejected,
+.milestone-step.rejected .milestone-dot {
+  color: #dc2626;
+}
+
+.milestone-step.rejected .milestone-dot {
+  border-color: #dc2626;
+  background: #fee2e2;
+}
+
+.milestone-note {
+  margin-top: 14px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.milestone-note.rejected {
+  background: #fff1f2;
+  color: #dc2626;
+}
 
 /* =========================================
-   ITEMS TABLE
+   SIDEBAR ITEMS
 ========================================= */
 
-.items-detail-table-wrapper {
+.sidebar-items-table-wrapper {
+  width: 100%;
   overflow-x: auto;
 }
 
-.items-detail-table {
+.sidebar-items-table {
   width: 100%;
-
   border-collapse: collapse;
-
   table-layout: fixed;
 }
 
-.items-detail-table th {
-  padding: 12px 20px;
-
-  background: #f8fafc;
-
-  color: #7b8798;
-
+.sidebar-items-table th {
   text-align: left;
-
-  font-size: 11px;
-
+  padding: 8px 6px;
+  background: #f8fafc;
+  color: #7b8798;
+  font-size: 10px;
   font-weight: 700;
-
   border-bottom: 1px solid #e1e6ed;
+  text-transform: uppercase;
 }
 
-.items-detail-table td {
-  padding: 14px 20px;
-
+.sidebar-items-table td {
+  padding: 10px 6px;
   color: #475569;
-
-  font-size: 13px;
-
-  border-bottom: 1px solid #e8ecf1;
+  font-size: 12px;
+  border-bottom: 1px solid #eef1f5;
+  vertical-align: top;
+  word-break: break-word;
 }
 
-.items-detail-table th:first-child,
-.items-detail-table td:first-child {
-  width: 48%;
+.sidebar-items-table th:nth-child(1),
+.sidebar-items-table td:nth-child(1) {
+  width: 42%;
 }
 
-.items-detail-table th:nth-child(2),
-.items-detail-table td:nth-child(2) {
-  width: 17%;
+.sidebar-items-table th:nth-child(2),
+.sidebar-items-table td:nth-child(2) {
+  width: 14%;
 }
 
-.items-detail-table th:nth-child(3),
-.items-detail-table td:nth-child(3) {
-  width: 18%;
+.sidebar-items-table th:nth-child(3),
+.sidebar-items-table td:nth-child(3),
+.sidebar-items-table th:nth-child(4),
+.sidebar-items-table td:nth-child(4) {
+  width: 22%;
 }
 
-.items-detail-table th:nth-child(4),
-.items-detail-table td:nth-child(4) {
-  width: 17%;
-}
-
-.items-detail-table td strong {
-  color: #475569;
-
-  font-weight: 700;
+.sidebar-items-table td strong {
+  color: #334155;
+  font-weight: 600;
+  font-size: 12px;
 }
 
 .detail-item-amount {
   font-weight: 700;
-
   color: #1e293b !important;
 }
-
-
-/* =========================================
-   MOBILE ITEMS LIST
-========================================= */
 
 .mobile-items-list {
   display: none;
 }
 
 .mobile-item-card {
-  padding: 14px 16px;
-
+  padding: 12px 0;
   border-bottom: 1px solid #e8ecf1;
 }
 
@@ -363,14 +344,10 @@
 
 .mobile-kv-row {
   display: flex;
-
   justify-content: space-between;
-
   align-items: flex-start;
-
   gap: 16px;
-
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .mobile-kv-row:last-child {
@@ -379,112 +356,135 @@
 
 .mobile-kv-row span {
   flex: 0 0 auto;
-
   color: #94a3b8;
-
   font-size: 12px;
-
-  line-height: 1.4;
 }
 
 .mobile-kv-row strong {
   flex: 1 1 auto;
-
   text-align: right;
-
   color: #334155;
-
   font-size: 13px;
-
   font-weight: 600;
-
-  line-height: 1.4;
-
   word-break: break-word;
 }
 
 .mobile-item-amount {
   color: #1e293b !important;
-
   font-weight: 700 !important;
 }
 
 .mobile-item-empty {
   margin: 0;
-
   color: #94a3b8;
-
   font-size: 13px;
 }
 
-
 /* =========================================
-   TOTAL
+   ORDER SUMMARY
 ========================================= */
 
-.order-total-section {
+.order-summary-list {
   display: flex;
-
-  justify-content: flex-end;
-
-  align-items: center;
-
-  gap: 40px;
-
-  padding: 18px 20px;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.order-total-section div {
+.order-summary-row {
   display: flex;
-
+  justify-content: space-between;
   align-items: center;
-
-  gap: 15px;
+  gap: 12px;
 }
 
-.order-total-section span {
-  color: #7b8798;
-
+.order-summary-row span {
+  color: #94a3b8;
   font-size: 12px;
 }
 
-.order-total-section strong {
-  color: #1e293b;
-
-  font-size: 16px;
+.order-summary-row strong {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
 }
 
+.order-summary-row.total {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid #edf0f4;
+}
+
+.order-summary-row.total span,
+.order-summary-row.total strong {
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 700;
+}
 
 /* =========================================
-   COMMENT
+   ACTIVITY TIMELINE
 ========================================= */
 
-.comment-card {
-  background: #ffffff;
-
-  border: 1px solid #e3e8ef;
-
-  border-radius: 10px;
-
-  padding: 20px;
+.activity-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-.comment-card h3 {
-  margin: 0 0 8px;
+.activity-item {
+  display: flex;
+  gap: 12px;
+  position: relative;
+  padding-bottom: 16px;
+}
 
+.activity-item:last-child {
+  padding-bottom: 0;
+}
+
+.activity-item:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: 0;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+.activity-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #dcfce7;
+  margin-top: 2px;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.activity-item.rejected .activity-dot {
+  background: #dc2626;
+  border-color: #fee2e2;
+}
+
+.activity-content {
+  min-width: 0;
+}
+
+.activity-content strong {
+  display: block;
   color: #334155;
-
-  font-size: 14px;
-}
-
-.comment-card p {
-  margin: 0;
-
-  color: #64748b;
-
   font-size: 13px;
+  font-weight: 600;
 }
 
+.activity-content span {
+  display: block;
+  margin-top: 3px;
+  color: #94a3b8;
+  font-size: 11px;
+}
 
 /* =========================================
    NOT FOUND
@@ -492,95 +492,82 @@
 
 .order-not-found {
   background: #ffffff;
-
   border: 1px solid #e3e8ef;
-
   border-radius: 10px;
-
   padding: 50px;
-
   text-align: center;
 }
 
 .order-not-found h2 {
   margin: 0;
-
   color: #334155;
 }
 
 .order-not-found p {
   color: #94a3b8;
-
   font-size: 13px;
 }
-
 
 /* =========================================
    RESPONSIVE
 ========================================= */
 
-@media (max-width: 800px) {
+@media (max-width: 1100px) {
+  .details-layout {
+    grid-template-columns: 1fr;
+  }
+}
 
+@media (max-width: 800px) {
   .order-details-page {
     padding: 15px;
   }
 
-  .information-grid {
-    grid-template-columns: 1fr;
-  }
-
   .details-heading {
     align-items: flex-start;
-
     flex-direction: column;
-
     gap: 15px;
+  }
+
+  .details-main-row {
+    grid-template-columns: 1fr;
   }
 
   .information-fields {
     grid-template-columns: 1fr;
-
     gap: 12px;
   }
 
   .information-fields > div {
     display: flex;
-
     justify-content: space-between;
-
     align-items: flex-start;
-
     gap: 16px;
   }
 
   .information-fields label {
     margin-bottom: 0;
-
     flex: 0 0 auto;
-
     max-width: 45%;
   }
 
   .information-fields strong {
     flex: 1 1 auto;
-
     text-align: right;
   }
 
-  .order-total-section {
-    justify-content: space-between;
-
-    gap: 10px;
-
-    flex-wrap: wrap;
-
-    padding: 14px 16px;
+  .status-milestone {
+    max-width: 100%;
   }
 
-  .order-total-section div {
-    width: 100%;
+  .milestone-step {
+    min-width: 64px;
+    font-size: 11px;
+  }
 
-    justify-content: space-between;
+  .milestone-line {
+    flex: 0 0 24px;
+    width: 24px;
   }
 
   .desktop-items-table {
@@ -590,9 +577,4 @@
   .mobile-items-list {
     display: block;
   }
-
-  .items-detail-header {
-    padding: 16px;
-  }
-
 }

@@ -12,12 +12,14 @@ import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import CloseIcon from "@mui/icons-material/Close";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 
 import * as XLSX from "xlsx";
 
 import StatusBadge from "../components/StatusBadge";
-import { orders } from "../data/order";
+import { orders, ORDER_STATUSES } from "../data/order";
 
 import "../styles/order.css";
 
@@ -171,7 +173,9 @@ const OrderDashboard = () => {
 
     const [search, setSearch] = useState("");
 
-    const [statusFilter, setStatusFilter] = useState("all");
+    const [selectedStatuses, setSelectedStatuses] = useState([]);
+
+    const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
     const [datePreset, setDatePreset] = useState("30");
 
@@ -179,7 +183,7 @@ const OrderDashboard = () => {
 
     const [toDate, setToDate] = useState("");
 
-    const [detailsModalOrder, setDetailsModalOrder] = useState(null);
+    const [expandedOrders, setExpandedOrders] = useState(() => new Set());
 
     const [sortConfig, setSortConfig] = useState({
         key: null,
@@ -189,6 +193,8 @@ const OrderDashboard = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    const statusDropdownRef = React.useRef(null);
 
     // --------------------------------------------------
     // DEMO REFERENCE DATE
@@ -213,6 +219,23 @@ const OrderDashboard = () => {
         });
 
         return latestDate || new Date();
+    }, []);
+
+    useEffect(() => {
+        const handleOutsideClick = (event) => {
+            if (
+                statusDropdownRef.current &&
+                !statusDropdownRef.current.contains(event.target)
+            ) {
+                setStatusDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleOutsideClick);
+
+        return () => {
+            document.removeEventListener("mousedown", handleOutsideClick);
+        };
     }, []);
 
     // --------------------------------------------------
@@ -279,13 +302,16 @@ const OrderDashboard = () => {
 
     const filteredOrders = useMemo(() => {
         const searchValue = search.trim().toLowerCase();
+        const selectedNormalized = selectedStatuses.map((status) =>
+            normalizeStatus(status),
+        );
 
         return dateFilteredOrders.filter((order) => {
             const status = getOrderStatus(order);
 
             const matchesStatus =
-                statusFilter === "all" ||
-                normalizeStatus(status) === statusFilter;
+                selectedNormalized.length === 0 ||
+                selectedNormalized.includes(normalizeStatus(status));
 
             if (!matchesStatus) {
                 return false;
@@ -315,7 +341,7 @@ const OrderDashboard = () => {
 
             return searchableText.includes(searchValue);
         });
-    }, [dateFilteredOrders, search, statusFilter]);
+    }, [dateFilteredOrders, search, selectedStatuses]);
 
     // --------------------------------------------------
     // SORT
@@ -354,14 +380,18 @@ const OrderDashboard = () => {
         const newOrders = dateFilteredOrders.filter((order) => {
             const status = normalizeStatus(getOrderStatus(order));
 
-            return (
-                status === "new" || status === "placed" || status === "created"
-            );
+            return status === "placed" || status === "new" || status === "pending";
         });
 
-        const pendingOrders = dateFilteredOrders.filter(
-            (order) => normalizeStatus(getOrderStatus(order)) === "pending",
-        );
+        const pendingOrders = dateFilteredOrders.filter((order) => {
+            const status = normalizeStatus(getOrderStatus(order));
+
+            return (
+                status === "accepted" ||
+                status === "distributor edit" ||
+                status === "partial fulfilled"
+            );
+        });
 
         const totalValue = dateFilteredOrders.reduce(
             (total, order) => total + Number(order.amount || 0),
@@ -382,7 +412,7 @@ const OrderDashboard = () => {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [search, statusFilter, fromDate, toDate, rowsPerPage, sortConfig]);
+    }, [search, selectedStatuses, fromDate, toDate, rowsPerPage, sortConfig]);
 
     const totalPages = Math.max(
         1,
@@ -427,16 +457,39 @@ const OrderDashboard = () => {
     };
 
     // --------------------------------------------------
-    // DETAILS MODAL
+    // INLINE DETAILS (MULTI EXPAND)
     // --------------------------------------------------
 
-    const openDetailsModal = (order) => {
-        setDetailsModalOrder(order);
+    const toggleDetails = (orderId) => {
+        setExpandedOrders((current) => {
+            const next = new Set(current);
+
+            if (next.has(orderId)) {
+                next.delete(orderId);
+            } else {
+                next.add(orderId);
+            }
+
+            return next;
+        });
     };
 
-    const closeDetailsModal = () => {
-        setDetailsModalOrder(null);
+    const toggleStatusOption = (status) => {
+        setSelectedStatuses((current) => {
+            if (current.includes(status)) {
+                return current.filter((item) => item !== status);
+            }
+
+            return [...current, status];
+        });
     };
+
+    const statusDropdownLabel =
+        selectedStatuses.length === 0
+            ? "All Status"
+            : selectedStatuses.length === 1
+              ? selectedStatuses[0]
+              : `${selectedStatuses.length} selected`;
 
     // --------------------------------------------------
     // EXCEL EXPORT
@@ -503,7 +556,8 @@ const OrderDashboard = () => {
     const handleResetFilters = () => {
         setSearch("");
 
-        setStatusFilter("all");
+        setSelectedStatuses([]);
+        setStatusDropdownOpen(false);
 
         setDatePreset("30");
 
@@ -512,7 +566,7 @@ const OrderDashboard = () => {
         setFromDate(range.from);
         setToDate(range.to);
 
-        setDetailsModalOrder(null);
+        setExpandedOrders(new Set());
         setSortConfig({ key: null, direction: "asc" });
     };
 
@@ -597,7 +651,9 @@ const OrderDashboard = () => {
                     <div>
                         <span>Total Order Value</span>
 
-                        <strong>{formatCurrency(summary.totalValue)}</strong>
+                        <strong className="summary-amount-value">
+                            {formatCurrency(summary.totalValue)}
+                        </strong>
                     </div>
                 </div>
             </div>
@@ -621,29 +677,61 @@ const OrderDashboard = () => {
                     </div>
 
                     <div className="filter-controls">
-                        {/* STATUS */}
+                        {/* MULTI SELECT STATUS */}
 
-                        <select
-                            value={statusFilter}
-                            onChange={(event) =>
-                                setStatusFilter(event.target.value)
-                            }
-                            className="filter-select"
+                        <div
+                            className="status-multiselect"
+                            ref={statusDropdownRef}
                         >
-                            <option value="all">All Status</option>
+                            <button
+                                type="button"
+                                className="status-multiselect-trigger"
+                                onClick={() =>
+                                    setStatusDropdownOpen((open) => !open)
+                                }
+                            >
+                                <span>{statusDropdownLabel}</span>
+                                <KeyboardArrowDownIcon fontSize="small" />
+                            </button>
 
-                            <option value="new">New</option>
+                            {statusDropdownOpen && (
+                                <div className="status-multiselect-menu">
+                                    {ORDER_STATUSES.map((status) => {
+                                        const checked =
+                                            selectedStatuses.includes(status);
 
-                            <option value="pending">Pending</option>
-
-                            <option value="accepted">Accepted</option>
-
-                            <option value="dispatched">Dispatched</option>
-
-                            <option value="delivered">Delivered</option>
-
-                            <option value="rejected">Rejected</option>
-                        </select>
+                                        return (
+                                            <label
+                                                key={status}
+                                                className="status-multiselect-option"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={checked}
+                                                    onChange={() =>
+                                                        toggleStatusOption(
+                                                            status,
+                                                        )
+                                                    }
+                                                />
+                                                {checked ? (
+                                                    <CheckBoxIcon
+                                                        className="status-check-icon checked"
+                                                        fontSize="small"
+                                                    />
+                                                ) : (
+                                                    <CheckBoxOutlineBlankIcon
+                                                        className="status-check-icon"
+                                                        fontSize="small"
+                                                    />
+                                                )}
+                                                <span>{status}</span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
 
                         {/* DATE PRESET */}
 
@@ -759,13 +847,15 @@ const OrderDashboard = () => {
                                 ))}
 
                                 <th>Details (Cases)</th>
+
+                                <th>Actions</th>
                             </tr>
                         </thead>
 
                         <tbody>
                             {paginatedOrders.length === 0 ? (
                                 <tr>
-                                    <td colSpan={11} className="no-records">
+                                    <td colSpan={12} className="no-records">
                                         No records found
                                     </td>
                                 </tr>
@@ -832,12 +922,55 @@ const OrderDashboard = () => {
                                                 type="button"
                                                 className="details-toggle"
                                                 onClick={() =>
-                                                    openDetailsModal(order)
+                                                    toggleDetails(order.id)
                                                 }
                                             >
-                                                Show details
+                                                {expandedOrders.has(order.id)
+                                                    ? "Hide details"
+                                                    : "Show details"}
                                             </button>
+
+                                            {expandedOrders.has(order.id) && (
+                                                <div className="inline-details">
+                                                    {(order.items || [])
+                                                        .length === 0 ? (
+                                                        <div className="inline-detail-item">
+                                                            <span className="inline-detail-empty">
+                                                                No products
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        (order.items || []).map(
+                                                            (item, index) => (
+                                                                <div
+                                                                    key={
+                                                                        item.id ||
+                                                                        index
+                                                                    }
+                                                                    className="inline-detail-item"
+                                                                >
+                                                                    <strong>
+                                                                        {
+                                                                            item.product
+                                                                        }
+                                                                    </strong>
+                                                                    <span>
+                                                                        {Number(
+                                                                            item.unitPrice ||
+                                                                                0,
+                                                                        ).toLocaleString(
+                                                                            "en-IN",
+                                                                        )}
+                                                                    </span>
+                                                                </div>
+                                                            ),
+                                                        )
+                                                    )}
+                                                </div>
+                                            )}
                                         </td>
+
+                                        <td className="actions-cell" />
                                     </tr>
                                 ))
                             )}
@@ -988,61 +1121,6 @@ const OrderDashboard = () => {
                     </div>
                 )}
             </div>
-
-            {detailsModalOrder && (
-                <div
-                    className="details-modal-overlay"
-                    onClick={closeDetailsModal}
-                >
-                    <div
-                        className="details-modal"
-                        onClick={(event) => event.stopPropagation()}
-                    >
-                        <div className="details-modal-header">
-                            <div>
-                                <h3>Order Details</h3>
-                                <span>
-                                    Order #{detailsModalOrder.id}
-                                </span>
-                            </div>
-
-                            <button
-                                type="button"
-                                className="details-modal-close"
-                                onClick={closeDetailsModal}
-                                aria-label="Close"
-                            >
-                                <CloseIcon fontSize="small" />
-                            </button>
-                        </div>
-
-                        <div className="details-modal-body">
-                            {(detailsModalOrder.items || []).length === 0 ? (
-                                <p className="details-modal-empty">
-                                    No products found
-                                </p>
-                            ) : (
-                                (detailsModalOrder.items || []).map(
-                                    (item, index) => (
-                                        <div
-                                            key={item.id || index}
-                                            className="details-modal-item"
-                                        >
-                                            <strong>{item.product}</strong>
-                                            <span>
-                                                {" "}
-                                                {Number(
-                                                    item.unitPrice || 0,
-                                                ).toLocaleString("en-IN")}
-                                            </span>
-                                        </div>
-                                    ),
-                                )
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

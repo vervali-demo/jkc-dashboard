@@ -163,6 +163,14 @@
   font-weight: 700;
 }
 
+.summary-amount-value {
+  font-size: 18px !important;
+
+  line-height: 1.25;
+
+  word-break: break-word;
+}
+
 
 /* =====================================================
    FILTER CARD
@@ -266,7 +274,8 @@
 }
 
 .filter-select,
-.date-select {
+.date-select,
+.status-multiselect-trigger {
   height: 40px;
 
   border: 1px solid #d9e0e8;
@@ -287,12 +296,105 @@
 }
 
 .filter-select:focus,
-.date-select:focus {
+.date-select:focus,
+.status-multiselect-trigger:focus {
   border-color: #6366f1;
 
   box-shadow:
     0 0 0 3px
     rgba(99, 102, 241, 0.08);
+}
+
+.status-multiselect {
+  position: relative;
+
+  min-width: 160px;
+}
+
+.status-multiselect-trigger {
+  width: 100%;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 8px;
+
+  white-space: nowrap;
+}
+
+.status-multiselect-trigger span {
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.status-multiselect-menu {
+  position: absolute;
+
+  top: calc(100% + 6px);
+
+  left: 0;
+
+  z-index: 30;
+
+  min-width: 220px;
+
+  max-height: 280px;
+
+  overflow-y: auto;
+
+  background: #ffffff;
+
+  border: 1px solid #d9e0e8;
+
+  border-radius: 8px;
+
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+
+  padding: 6px;
+}
+
+.status-multiselect-option {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 8px 10px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  color: #334155;
+
+  font-size: 13px;
+
+  user-select: none;
+}
+
+.status-multiselect-option:hover {
+  background: #f1f5f9;
+}
+
+.status-multiselect-option input {
+  position: absolute;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+.status-check-icon {
+  color: #94a3b8;
+}
+
+.status-check-icon.checked {
+  color: #2563eb;
 }
 
 .date-filter {
@@ -640,7 +742,14 @@
 
 .orders-table th:nth-child(11),
 .orders-table td:nth-child(11) {
-  width: 140px;
+  width: 130px;
+
+  text-align: center;
+}
+
+.orders-table th:nth-child(12),
+.orders-table td:nth-child(12) {
+  width: 90px;
 }
 
 
@@ -726,13 +835,15 @@
 }
 
 .status-accepted,
-.status-delivered {
+.status-delivered,
+.status-fulfilled {
   background: #eaf8f0;
 
   color: #15803d;
 }
 
-.status-pending {
+.status-pending,
+.status-placed {
   background: #fff7e6;
 
   color: #b45309;
@@ -744,7 +855,8 @@
   color: #dc2626;
 }
 
-.status-dispatched {
+.status-dispatched,
+.status-partial {
   background: #eef5ff;
 
   color: #2563eb;
@@ -756,6 +868,12 @@
   color: #0284c7;
 }
 
+.status-distributor-edit {
+  background: #f5f3ff;
+
+  color: #7c3aed;
+}
+
 
 /* =====================================================
    DETAILS CELL
@@ -763,6 +881,8 @@
 
 .details-cell {
   vertical-align: top !important;
+
+  text-align: center !important;
 }
 
 .details-toggle {
@@ -774,7 +894,7 @@
 
   padding: 0;
 
-  margin: 0;
+  margin: 0 auto;
 
   display: inline-block;
 
@@ -786,13 +906,63 @@
 
   text-decoration: underline;
 
-  text-align: left;
+  text-align: center;
 
   white-space: nowrap;
 }
 
 .details-toggle:hover {
   color: #005ea8;
+}
+
+.inline-details {
+  margin-top: 8px;
+
+  text-align: left;
+}
+
+.inline-detail-item {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 12px;
+
+  margin-bottom: 8px;
+}
+
+.inline-detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.inline-detail-item strong {
+  flex: 1 1 auto;
+
+  color: #1e293b;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  line-height: 1.35;
+
+  word-break: break-word;
+}
+
+.inline-detail-item span {
+  flex: 0 0 auto;
+
+  color: #405066;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+}
+
+.inline-detail-empty {
+  color: #94a3b8 !important;
 }
 
 
@@ -1237,6 +1407,20 @@
     font-size: 17px;
   }
 
+  .summary-amount-value {
+    font-size: 13px !important;
+
+    line-height: 1.3;
+  }
+
+  .summary-card:has(.summary-amount-value) {
+    align-items: flex-start;
+  }
+
+  .summary-card:has(.summary-amount-value) > div {
+    min-width: 0;
+  }
+
   .filter-card {
     padding: 12px;
   }
@@ -1282,7 +1466,8 @@
   .filter-select,
   .date-filter,
   .reset-btn,
-  .export-btn {
+  .export-btn,
+  .status-multiselect {
     width: 100%;
 
     min-width: 0;
@@ -1296,6 +1481,26 @@
     padding-left: 10px;
 
     padding-right: 10px;
+  }
+
+  .status-multiselect {
+    height: auto;
+
+    padding: 0;
+  }
+
+  .status-multiselect-trigger {
+    width: 100%;
+
+    height: 38px;
+
+    font-size: 12px;
+  }
+
+  .status-multiselect-menu {
+    width: 100%;
+
+    min-width: 0;
   }
 
   .date-filter {

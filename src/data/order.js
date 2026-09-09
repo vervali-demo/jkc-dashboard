@@ -1,3 +1,12 @@
+export const ORDER_STATUSES = [
+  "Placed",
+  "Accepted",
+  "Fulfilled",
+  "Rejected",
+  "Partial Fulfilled",
+  "Distributor Edit",
+];
+
 export const orders = [
   {
     id: "1511123",
@@ -10,7 +19,6 @@ export const orders = [
     user: "VJP ONE INFRATECH LLP",
     distributor: "VJP ONE INFRATECH LLP",
     shipTo: "VJP ONE INFRATECH LLP",
-
     items: [
       {
         id: 1,
@@ -28,7 +36,6 @@ export const orders = [
       },
     ],
   },
-
   {
     id: "1511124",
     erpId: "2132541275",
@@ -36,11 +43,10 @@ export const orders = [
     amount: 125000,
     comment: "Regular order",
     orderDate: "29/07/2026 12:25:15",
-    status: "Pending",
+    status: "Placed",
     user: "ABC USER",
     distributor: "ABC DISTRIBUTORS",
     shipTo: "ABC CEMENT STORE",
-
     items: [
       {
         id: 1,
@@ -58,7 +64,6 @@ export const orders = [
       },
     ],
   },
-
   {
     id: "1511125",
     erpId: "2132541276",
@@ -66,11 +71,10 @@ export const orders = [
     amount: 78500,
     comment: "Deliver before evening",
     orderDate: "27/07/2026 10:30:00",
-    status: "New",
+    status: "Placed",
     user: "RAJESH KUMAR",
     distributor: "SHREE RAM DISTRIBUTORS",
     shipTo: "SHREE RAM TRADERS",
-
     items: [
       {
         id: 1,
@@ -88,7 +92,6 @@ export const orders = [
       },
     ],
   },
-
   {
     id: "1511126",
     erpId: "2132541277",
@@ -96,11 +99,10 @@ export const orders = [
     amount: 45600,
     comment: "",
     orderDate: "25/07/2026 09:15:20",
-    status: "Delivered",
+    status: "Fulfilled",
     user: "AMIT SHARMA",
     distributor: "MAHADEV DISTRIBUTORS",
     shipTo: "MAHADEV BUILDING MATERIALS",
-
     items: [
       {
         id: 1,
@@ -111,7 +113,6 @@ export const orders = [
       },
     ],
   },
-
   {
     id: "1511127",
     erpId: "2132541278",
@@ -123,7 +124,6 @@ export const orders = [
     user: "MOHIT SINGH",
     distributor: "SHIV SHAKTI DISTRIBUTORS",
     shipTo: "SHIV SHAKTI TRADERS",
-
     items: [
       {
         id: 1,
@@ -131,6 +131,188 @@ export const orders = [
         quantity: 100,
         unitPrice: 950,
         amount: 95000,
+      },
+    ],
+  },
+  {
+    id: "1511128",
+    erpId: "2132541279",
+    outlet: "Gupta Hardware Mart",
+    amount: 210500,
+    comment: "Partial stock available",
+    orderDate: "28/07/2026 11:20:40",
+    status: "Partial Fulfilled",
+    user: "SUNIL GUPTA",
+    distributor: "GUPTA DISTRIBUTORS",
+    shipTo: "Gupta Hardware Mart",
+    items: [
+      {
+        id: 1,
+        product: "Wall MaxX- 40 KG PACKING BOPP",
+        quantity: 60,
+        unitPrice: 2500,
+        amount: 150000,
+      },
+      {
+        id: 2,
+        product: "JK CEMENT 50 KG",
+        quantity: 70,
+        unitPrice: 650,
+        amount: 45500,
+      },
+      {
+        id: 3,
+        product: "JK WALL PUTTY 20 KG",
+        quantity: 15,
+        unitPrice: 1000,
+        amount: 15000,
+      },
+    ],
+  },
+  {
+    id: "1511129",
+    erpId: "2132541280",
+    outlet: "Rajasthan Cement Depot",
+    amount: 168000,
+    comment: "Distributor updated quantity",
+    orderDate: "26/07/2026 16:05:12",
+    status: "Distributor Edit",
+    user: "VIKAS MEENA",
+    distributor: "RAJASTHAN CEMENT HOUSE",
+    shipTo: "Rajasthan Cement Depot",
+    items: [
+      {
+        id: 1,
+        product: "JK SUPER CEMENT 50 KG",
+        quantity: 120,
+        unitPrice: 700,
+        amount: 84000,
+      },
+      {
+        id: 2,
+        product: "JK CEMENT 50 KG",
+        quantity: 120,
+        unitPrice: 700,
+        amount: 84000,
+      },
+    ],
+  },
+  {
+    id: "1511130",
+    erpId: "2132541281",
+    outlet: "City Build Care",
+    amount: 52000,
+    comment: "Morning dispatch",
+    orderDate: "24/07/2026 08:40:00",
+    status: "Accepted",
+    user: "NEHA VERMA",
+    distributor: "CITY BUILD DISTRIBUTORS",
+    shipTo: "City Build Care",
+    items: [
+      {
+        id: 1,
+        product: "JK WALL PUTTY 40 KG",
+        quantity: 40,
+        unitPrice: 1300,
+        amount: 52000,
+      },
+    ],
+  },
+  {
+    id: "1511131",
+    erpId: "2132541282",
+    outlet: "Om Sai Building Material",
+    amount: 97500,
+    comment: "",
+    orderDate: "23/07/2026 14:10:33",
+    status: "Fulfilled",
+    user: "SURESH PATIL",
+    distributor: "OM SAI DISTRIBUTORS",
+    shipTo: "Om Sai Building Material",
+    items: [
+      {
+        id: 1,
+        product: "JK CEMENT 50 KG",
+        quantity: 150,
+        unitPrice: 650,
+        amount: 97500,
+      },
+    ],
+  },
+  {
+    id: "1511132",
+    erpId: "2132541283",
+    outlet: "Lakshmi Traders",
+    amount: 33600,
+    comment: "Customer cancelled",
+    orderDate: "21/07/2026 18:22:09",
+    status: "Rejected",
+    user: "ANITA DESAI",
+    distributor: "LAKSHMI DISTRIBUTORS",
+    shipTo: "Lakshmi Traders",
+    items: [
+      {
+        id: 1,
+        product: "JK PUTTY 20 KG",
+        quantity: 28,
+        unitPrice: 1200,
+        amount: 33600,
+      },
+    ],
+  },
+  {
+    id: "1511133",
+    erpId: "2132541284",
+    outlet: "Bharat Cement Point",
+    amount: 142500,
+    comment: "Fresh placement",
+    orderDate: "30/07/2026 09:05:55",
+    status: "Placed",
+    user: "KIRAN JOSHI",
+    distributor: "BHARAT DISTRIBUTORS",
+    shipTo: "Bharat Cement Point",
+    items: [
+      {
+        id: 1,
+        product: "SHIELDMAXX -40 KG PACKING BOPP",
+        quantity: 50,
+        unitPrice: 2499,
+        amount: 124950,
+      },
+      {
+        id: 2,
+        product: "JK CEMENT 50 KG",
+        quantity: 27,
+        unitPrice: 650,
+        amount: 17550,
+      },
+    ],
+  },
+  {
+    id: "1511134",
+    erpId: "2132541285",
+    outlet: "Prime Infra Supplies",
+    amount: 88000,
+    comment: "Hold for confirmation",
+    orderDate: "29/07/2026 19:30:01",
+    status: "Distributor Edit",
+    user: "ROHIT MALHOTRA",
+    distributor: "PRIME INFRA DISTRIBUTORS",
+    shipTo: "Prime Infra Supplies",
+    items: [
+      {
+        id: 1,
+        product: "JK SUPER CEMENT 50 KG",
+        quantity: 80,
+        unitPrice: 750,
+        amount: 60000,
+      },
+      {
+        id: 2,
+        product: "JK WALL PUTTY 20 KG",
+        quantity: 20,
+        unitPrice: 1400,
+        amount: 28000,
       },
     ],
   },

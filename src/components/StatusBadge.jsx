@@ -1,33 +1,43 @@
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CancelIcon from "@mui/icons-material/Cancel";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import FiberNewIcon from "@mui/icons-material/FiberNew";
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import DonutLargeIcon from "@mui/icons-material/DonutLarge";
 
 const StatusBadge = ({ status }) => {
-  const normalizedStatus = String(status || "").toLowerCase();
+  const normalizedStatus = String(status || "")
+    .trim()
+    .toLowerCase();
 
   let Icon = AccessTimeIcon;
-  let className = "status-pending";
+  let className = "status-placed";
 
   if (normalizedStatus === "accepted") {
     Icon = CheckCircleIcon;
     className = "status-accepted";
-  } else if (normalizedStatus === "delivered") {
-    Icon = CheckCircleIcon;
-    className = "status-delivered";
+  } else if (
+    normalizedStatus === "fulfilled" ||
+    normalizedStatus === "delivered"
+  ) {
+    Icon = TaskAltIcon;
+    className = "status-fulfilled";
+  } else if (normalizedStatus === "partial fulfilled") {
+    Icon = DonutLargeIcon;
+    className = "status-partial";
   } else if (normalizedStatus === "rejected") {
     Icon = CancelIcon;
     className = "status-rejected";
-  } else if (normalizedStatus === "dispatched") {
-    Icon = LocalShippingIcon;
-    className = "status-dispatched";
-  } else if (normalizedStatus === "new") {
-    Icon = FiberNewIcon;
-    className = "status-new";
-  } else if (normalizedStatus === "pending") {
+  } else if (normalizedStatus === "distributor edit") {
+    Icon = EditNoteIcon;
+    className = "status-distributor-edit";
+  } else if (
+    normalizedStatus === "placed" ||
+    normalizedStatus === "pending" ||
+    normalizedStatus === "new"
+  ) {
     Icon = AccessTimeIcon;
-    className = "status-pending";
+    className = "status-placed";
   }
 
   return (
