@@ -9,6 +9,8 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+import HourglassTopIcon from "@mui/icons-material/HourglassTop";
+import SyncIcon from "@mui/icons-material/Sync";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -115,6 +117,47 @@ const normalizeStatus = (status) => {
         .toLowerCase();
 };
 
+const isSameDay = (dateA, dateB) => {
+    if (!dateA || !dateB) {
+        return false;
+    }
+
+    return (
+        dateA.getFullYear() === dateB.getFullYear() &&
+        dateA.getMonth() === dateB.getMonth() &&
+        dateA.getDate() === dateB.getDate()
+    );
+};
+
+const matchesSummaryFilter = (order, summaryFilter, referenceDate) => {
+    if (!summaryFilter || summaryFilter === "total" || summaryFilter === "value") {
+        return true;
+    }
+
+    const status = normalizeStatus(getOrderStatus(order));
+    const orderDate = parseOrderDate(order.orderDate);
+
+    if (summaryFilter === "newToday") {
+        return (
+            isSameDay(orderDate, referenceDate) &&
+            (status === "placed" || status === "new" || status === "pending")
+        );
+    }
+
+    if (summaryFilter === "pending") {
+        return (
+            status === "accepted" ||
+            status === "partial fulfilled"
+        );
+    }
+
+    if (summaryFilter === "approvalPending") {
+        return status === "distributor edit" || status === "placed";
+    }
+
+    return true;
+};
+
 // --------------------------------------------------
 // CURRENCY
 // --------------------------------------------------
@@ -174,6 +217,10 @@ const OrderDashboard = () => {
     const [search, setSearch] = useState("");
 
     const [selectedStatuses, setSelectedStatuses] = useState([]);
+
+    const [summaryFilter, setSummaryFilter] = useState(null);
+
+    const [isSyncing, setIsSyncing] = useState(false);
 
     const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
@@ -309,6 +356,10 @@ const OrderDashboard = () => {
         return dateFilteredOrders.filter((order) => {
             const status = getOrderStatus(order);
 
+            if (!matchesSummaryFilter(order, summaryFilter, referenceDate)) {
+                return false;
+            }
+
             const matchesStatus =
                 selectedNormalized.length === 0 ||
                 selectedNormalized.includes(normalizeStatus(status));
@@ -341,7 +392,7 @@ const OrderDashboard = () => {
 
             return searchableText.includes(searchValue);
         });
-    }, [dateFilteredOrders, search, selectedStatuses]);
+    }, [dateFilteredOrders, search, selectedStatuses, summaryFilter, referenceDate]);
 
     // --------------------------------------------------
     // SORT
@@ -377,20 +428,26 @@ const OrderDashboard = () => {
     // --------------------------------------------------
 
     const summary = useMemo(() => {
-        const newOrders = dateFilteredOrders.filter((order) => {
+        const newTodayOrders = dateFilteredOrders.filter((order) => {
             const status = normalizeStatus(getOrderStatus(order));
+            const orderDate = parseOrderDate(order.orderDate);
 
-            return status === "placed" || status === "new" || status === "pending";
+            return (
+                isSameDay(orderDate, referenceDate) &&
+                (status === "placed" || status === "new" || status === "pending")
+            );
         });
 
         const pendingOrders = dateFilteredOrders.filter((order) => {
             const status = normalizeStatus(getOrderStatus(order));
 
-            return (
-                status === "accepted" ||
-                status === "distributor edit" ||
-                status === "partial fulfilled"
-            );
+            return status === "accepted" || status === "partial fulfilled";
+        });
+
+        const approvalPendingOrders = dateFilteredOrders.filter((order) => {
+            const status = normalizeStatus(getOrderStatus(order));
+
+            return status === "distributor edit" || status === "placed";
         });
 
         const totalValue = dateFilteredOrders.reduce(
@@ -399,12 +456,13 @@ const OrderDashboard = () => {
         );
 
         return {
-            newOrders: newOrders.length,
+            newToday: newTodayOrders.length,
             pendingOrders: pendingOrders.length,
+            approvalPending: approvalPendingOrders.length,
             totalOrders: dateFilteredOrders.length,
             totalValue,
         };
-    }, [dateFilteredOrders]);
+    }, [dateFilteredOrders, referenceDate]);
 
     // --------------------------------------------------
     // PAGINATION
@@ -412,7 +470,15 @@ const OrderDashboard = () => {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [search, selectedStatuses, fromDate, toDate, rowsPerPage, sortConfig]);
+    }, [
+        search,
+        selectedStatuses,
+        summaryFilter,
+        fromDate,
+        toDate,
+        rowsPerPage,
+        sortConfig,
+    ]);
 
     const totalPages = Math.max(
         1,
@@ -475,6 +541,8 @@ const OrderDashboard = () => {
     };
 
     const toggleStatusOption = (status) => {
+        setSummaryFilter(null);
+
         setSelectedStatuses((current) => {
             if (current.includes(status)) {
                 return current.filter((item) => item !== status);
@@ -482,6 +550,24 @@ const OrderDashboard = () => {
 
             return [...current, status];
         });
+    };
+
+    const handleSummaryCardClick = (filterKey) => {
+        setSelectedStatuses([]);
+        setStatusDropdownOpen(false);
+
+        setSummaryFilter((current) =>
+            current === filterKey ? null : filterKey,
+        );
+    };
+
+    const handleSync = () => {
+        // Static for now — will fetch latest API data later.
+        setIsSyncing(true);
+
+        window.setTimeout(() => {
+            setIsSyncing(false);
+        }, 800);
     };
 
     const statusDropdownLabel =
@@ -558,6 +644,7 @@ const OrderDashboard = () => {
 
         setSelectedStatuses([]);
         setStatusDropdownOpen(false);
+        setSummaryFilter(null);
 
         setDatePreset("30");
 
@@ -607,19 +694,31 @@ const OrderDashboard = () => {
       ========================================= */}
 
             <div className="summary-grid">
-                <div className="summary-card">
+                <button
+                    type="button"
+                    className={`summary-card ${
+                        summaryFilter === "newToday" ? "active" : ""
+                    }`}
+                    onClick={() => handleSummaryCardClick("newToday")}
+                >
                     <div className="summary-icon new-icon">
                         <ShoppingCartIcon />
                     </div>
 
                     <div>
-                        <span>New Orders Placed</span>
+                        <span>New Order Today</span>
 
-                        <strong>{summary.newOrders}</strong>
+                        <strong>{summary.newToday}</strong>
                     </div>
-                </div>
+                </button>
 
-                <div className="summary-card">
+                <button
+                    type="button"
+                    className={`summary-card ${
+                        summaryFilter === "pending" ? "active" : ""
+                    }`}
+                    onClick={() => handleSummaryCardClick("pending")}
+                >
                     <div className="summary-icon pending-icon">
                         <PendingActionsIcon />
                     </div>
@@ -629,9 +728,33 @@ const OrderDashboard = () => {
 
                         <strong>{summary.pendingOrders}</strong>
                     </div>
-                </div>
+                </button>
 
-                <div className="summary-card">
+                <button
+                    type="button"
+                    className={`summary-card ${
+                        summaryFilter === "approvalPending" ? "active" : ""
+                    }`}
+                    onClick={() => handleSummaryCardClick("approvalPending")}
+                >
+                    <div className="summary-icon approval-icon">
+                        <HourglassTopIcon />
+                    </div>
+
+                    <div>
+                        <span>Approval Pending</span>
+
+                        <strong>{summary.approvalPending}</strong>
+                    </div>
+                </button>
+
+                <button
+                    type="button"
+                    className={`summary-card ${
+                        summaryFilter === "total" ? "active" : ""
+                    }`}
+                    onClick={() => handleSummaryCardClick("total")}
+                >
                     <div className="summary-icon total-icon">
                         <ShoppingCartIcon />
                     </div>
@@ -641,9 +764,15 @@ const OrderDashboard = () => {
 
                         <strong>{summary.totalOrders}</strong>
                     </div>
-                </div>
+                </button>
 
-                <div className="summary-card">
+                <button
+                    type="button"
+                    className={`summary-card summary-card-value ${
+                        summaryFilter === "value" ? "active" : ""
+                    }`}
+                    onClick={() => handleSummaryCardClick("value")}
+                >
                     <div className="summary-icon amount-icon">
                         <CurrencyRupeeIcon />
                     </div>
@@ -655,7 +784,7 @@ const OrderDashboard = () => {
                             {formatCurrency(summary.totalValue)}
                         </strong>
                     </div>
-                </div>
+                </button>
             </div>
 
             {/* =========================================
@@ -818,6 +947,15 @@ const OrderDashboard = () => {
                             {sortedOrders.length !== 1 ? "s" : ""}
                         </span>
                     </div>
+
+                    <button
+                        className={`sync-btn ${isSyncing ? "syncing" : ""}`}
+                        onClick={handleSync}
+                        disabled={isSyncing}
+                    >
+                        <SyncIcon fontSize="small" />
+                        {isSyncing ? "Syncing..." : "Sync"}
+                    </button>
                 </div>
 
                 <div className="orders-table-wrapper desktop-orders-table">
