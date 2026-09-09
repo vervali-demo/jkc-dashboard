@@ -197,7 +197,7 @@ const SORTABLE_COLUMNS = [
     { key: "orderDate", label: "Order Date" },
     { key: "status", label: "Order State" },
     { key: "user", label: "User" },
-    { key: "distributor", label: "Warehouse / Distributor" },
+    { key: "distributor", label: "Distributor" },
     { key: "shipTo", label: "Ship To" },
 ];
 
