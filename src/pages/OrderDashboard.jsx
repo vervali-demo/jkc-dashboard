@@ -102,7 +102,7 @@ const formatDateForDisplay = (value) => {
     return `${day}-${month}-${year}`;
 };
 
-const DateField = ({ value, min, onChange }) => {
+const DateField = ({ value, min, max, onChange }) => {
     const openNativePicker = (event) => {
         const input = event.currentTarget;
 
@@ -128,6 +128,7 @@ const DateField = ({ value, min, onChange }) => {
                 className="date-picker-native"
                 value={value}
                 min={min || undefined}
+                max={max || undefined}
                 onChange={onChange}
                 onFocus={openNativePicker}
             />
@@ -470,6 +471,22 @@ const OrderDashboard = () => {
 
         setFromDate(range.from);
         setToDate(range.to);
+    };
+
+    const handleFromDateChange = (value) => {
+        setFromDate(value);
+
+        if (value && toDate && value > toDate) {
+            setToDate("");
+        }
+    };
+
+    const handleToDateChange = (value) => {
+        if (fromDate && value && value < fromDate) {
+            return;
+        }
+
+        setToDate(value);
     };
 
     // --------------------------------------------------
@@ -1375,8 +1392,9 @@ const OrderDashboard = () => {
                             <label>From</label>
                             <DateField
                                 value={fromDate}
+                                max={toDate}
                                 onChange={(event) =>
-                                    setFromDate(event.target.value)
+                                    handleFromDateChange(event.target.value)
                                 }
                             />
                         </div>
@@ -1387,7 +1405,7 @@ const OrderDashboard = () => {
                                 value={toDate}
                                 min={fromDate}
                                 onChange={(event) =>
-                                    setToDate(event.target.value)
+                                    handleToDateChange(event.target.value)
                                 }
                             />
                         </div>
