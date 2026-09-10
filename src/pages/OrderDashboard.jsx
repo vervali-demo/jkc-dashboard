@@ -77,7 +77,7 @@ const parseOrderDate = (value) => {
 // --------------------------------------------------
 
 const formatDateForInput = (date) => {
-    if (!date) {
+    if (!date || Number.isNaN(date.getTime())) {
         return "";
     }
 
@@ -86,6 +86,53 @@ const formatDateForInput = (date) => {
     const day = String(date.getDate()).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
+};
+
+const formatDateForDisplay = (value) => {
+    if (!value) {
+        return "";
+    }
+
+    const [year, month, day] = String(value).split("-");
+
+    if (!year || !month || !day) {
+        return "";
+    }
+
+    return `${day}-${month}-${year}`;
+};
+
+const DateField = ({ value, min, onChange }) => {
+    const openNativePicker = (event) => {
+        const input = event.currentTarget;
+
+        if (typeof input.showPicker === "function") {
+            try {
+                input.showPicker();
+            } catch {
+                // Browser may block showPicker; native input still opens on tap.
+            }
+        }
+    };
+
+    return (
+        <div className="date-picker-field">
+            <span
+                className={`date-picker-value${value ? "" : " placeholder"}`}
+            >
+                {value ? formatDateForDisplay(value) : "dd-mm-yyyy"}
+            </span>
+            <CalendarMonthIcon className="date-picker-icon" fontSize="small" />
+            <input
+                type="date"
+                className="date-picker-native"
+                value={value}
+                min={min || undefined}
+                onChange={onChange}
+                onFocus={openNativePicker}
+            />
+        </div>
+    );
 };
 
 // --------------------------------------------------
@@ -179,6 +226,13 @@ const formatCurrency = (amount) => {
 // SORTABLE COLUMNS
 // --------------------------------------------------
 
+const DATE_PRESETS = [
+    { value: "1", label: "Last 1 Day" },
+    { value: "7", label: "Last 7 Days" },
+    { value: "30", label: "Last 30 Days" },
+    { value: "custom", label: "Custom Range" },
+];
+
 const SUMMARY_FILTER_LABELS = {
     newToday: "New Order Today",
     pending: "Pending Orders",
@@ -263,6 +317,8 @@ const OrderDashboard = () => {
 
     const [approvalDropdownOpen, setApprovalDropdownOpen] = useState(false);
 
+    const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
+
     const [distributorSearch, setDistributorSearch] = useState("");
 
     const [datePreset, setDatePreset] = useState("30");
@@ -286,6 +342,7 @@ const OrderDashboard = () => {
     const divisionDropdownRef = React.useRef(null);
     const distributorDropdownRef = React.useRef(null);
     const approvalDropdownRef = React.useRef(null);
+    const dateDropdownRef = React.useRef(null);
 
     // --------------------------------------------------
     // DEMO REFERENCE DATE
@@ -341,6 +398,13 @@ const OrderDashboard = () => {
             ) {
                 setApprovalDropdownOpen(false);
             }
+
+            if (
+                dateDropdownRef.current &&
+                !dateDropdownRef.current.contains(event.target)
+            ) {
+                setDateDropdownOpen(false);
+            }
         };
 
         document.addEventListener("mousedown", handleOutsideClick);
@@ -379,6 +443,10 @@ const OrderDashboard = () => {
     // --------------------------------------------------
 
     useEffect(() => {
+        if (datePreset === "custom") {
+            return;
+        }
+
         const range = getPresetRange(Number(datePreset), referenceDate);
 
         setFromDate(range.from);
@@ -392,12 +460,16 @@ const OrderDashboard = () => {
     const handleDatePresetChange = (value) => {
         setDatePreset(value);
 
-        if (value !== "custom") {
-            const range = getPresetRange(Number(value), referenceDate);
-
-            setFromDate(range.from);
-            setToDate(range.to);
+        if (value === "custom") {
+            setFromDate("");
+            setToDate("");
+            return;
         }
+
+        const range = getPresetRange(Number(value), referenceDate);
+
+        setFromDate(range.from);
+        setToDate(range.to);
     };
 
     // --------------------------------------------------
@@ -672,6 +744,7 @@ const OrderDashboard = () => {
         setDivisionDropdownOpen(false);
         setDistributorDropdownOpen(false);
         setApprovalDropdownOpen(false);
+        setDateDropdownOpen(false);
     };
 
     const toggleListValue = (setter, value) => {
@@ -754,6 +827,10 @@ const OrderDashboard = () => {
         selectedApprovalLevels,
         "Approval Level",
     );
+
+    const datePresetLabel =
+        DATE_PRESETS.find((preset) => preset.value === datePreset)?.label ||
+        "Last 30 Days";
 
     // --------------------------------------------------
     // EXCEL EXPORT
@@ -1005,6 +1082,7 @@ const OrderDashboard = () => {
                                     setDivisionDropdownOpen(false);
                                     setDistributorDropdownOpen(false);
                                     setApprovalDropdownOpen(false);
+                                    setDateDropdownOpen(false);
                                     setStatusDropdownOpen((open) => !open);
                                 }}
                             >
@@ -1054,6 +1132,7 @@ const OrderDashboard = () => {
                                     setStatusDropdownOpen(false);
                                     setDistributorDropdownOpen(false);
                                     setApprovalDropdownOpen(false);
+                                    setDateDropdownOpen(false);
                                     setDivisionDropdownOpen((open) => !open);
                                 }}
                             >
@@ -1105,6 +1184,7 @@ const OrderDashboard = () => {
                                     setStatusDropdownOpen(false);
                                     setDivisionDropdownOpen(false);
                                     setApprovalDropdownOpen(false);
+                                    setDateDropdownOpen(false);
                                     setDistributorDropdownOpen((open) => !open);
                                 }}
                             >
@@ -1187,6 +1267,7 @@ const OrderDashboard = () => {
                                     setStatusDropdownOpen(false);
                                     setDivisionDropdownOpen(false);
                                     setDistributorDropdownOpen(false);
+                                    setDateDropdownOpen(false);
                                     setApprovalDropdownOpen((open) => !open);
                                 }}
                             >
@@ -1227,24 +1308,46 @@ const OrderDashboard = () => {
 
                         {/* DATE PRESET */}
 
-                        <div className="date-filter">
+                        <div className="date-filter" ref={dateDropdownRef}>
                             <CalendarMonthIcon />
 
-                            <select
-                                value={datePreset}
-                                onChange={(event) =>
-                                    handleDatePresetChange(event.target.value)
-                                }
+                            <button
+                                type="button"
                                 className="date-select"
+                                onClick={() => {
+                                    setStatusDropdownOpen(false);
+                                    setDivisionDropdownOpen(false);
+                                    setDistributorDropdownOpen(false);
+                                    setApprovalDropdownOpen(false);
+                                    setDateDropdownOpen((open) => !open);
+                                }}
                             >
-                                <option value="1">Last 1 Day</option>
+                                <span>{datePresetLabel}</span>
+                            </button>
 
-                                <option value="7">Last 7 Days</option>
-
-                                <option value="30">Last 30 Days</option>
-
-                                <option value="custom">Custom Range</option>
-                            </select>
+                            {dateDropdownOpen && (
+                                <div className="date-preset-menu">
+                                    {DATE_PRESETS.map((preset) => (
+                                        <button
+                                            type="button"
+                                            key={preset.value}
+                                            className={`date-preset-option${
+                                                datePreset === preset.value
+                                                    ? " selected"
+                                                    : ""
+                                            }`}
+                                            onClick={() => {
+                                                handleDatePresetChange(
+                                                    preset.value,
+                                                );
+                                                setDateDropdownOpen(false);
+                                            }}
+                                        >
+                                            {preset.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <button
@@ -1270,9 +1373,7 @@ const OrderDashboard = () => {
                     <div className="custom-date-wrapper">
                         <div className="date-input-group">
                             <label>From</label>
-
-                            <input
-                                type="date"
+                            <DateField
                                 value={fromDate}
                                 onChange={(event) =>
                                     setFromDate(event.target.value)
@@ -1282,9 +1383,7 @@ const OrderDashboard = () => {
 
                         <div className="date-input-group">
                             <label>To</label>
-
-                            <input
-                                type="date"
+                            <DateField
                                 value={toDate}
                                 min={fromDate}
                                 onChange={(event) =>
